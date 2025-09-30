@@ -63,7 +63,7 @@ const changeProgressStatus= asyncHandler(async (req,res)=>{
         }
         const complaint = await Complaint.findById(id);
         if(!complaint) throw new ApiError("Complaint not found",404);
-        if(!['pending', 'in-progress', 'resolved'].includes(status)){
+        if(!['pending','open', 'in-progress', 'resolved'].includes(status)){
             throw new ApiError("Invalid status",400);
         }
         complaint.status=status;
@@ -110,9 +110,21 @@ const getCitizenComplaints= asyncHandler(async (req,res)=>{
     }
 });
 
+const getComplaintById= asyncHandler(async (req,res)=>{
+    try {
+        const {id}= req.params; 
+        const complaint = await Complaint.findById(id).populate('user','firstName lastName email').populate({path:'user',select:'firstName lastName email '});
+        if(!complaint) throw new ApiError("Complaint not found",404);
+        return res.status(200).json(new ApiResponse(200,complaint,"Complaint fetched successfully"));
+    } catch (error) {
+        throw new ApiError(error?.message || "Something went wrong while fetching the complaint",error?.code || 500);
+    }
+});
+
 export {createComplaint,
         getAllComplaints,
         deleteComplaint,
         changeProgressStatus,
-        getCitizenComplaints
+        getCitizenComplaints,
+        getComplaintById
         };
