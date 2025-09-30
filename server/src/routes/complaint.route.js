@@ -7,13 +7,13 @@ import {
   getCitizenComplaints
 } from "../controllers/complaint.controller.js";
 import { verifyJWT, isCitizen, isStaff } from "../middlewares/auth.middleware.js";
-
+import { upload } from "../middlewares/multer.middleware.js";
 const router = Router();
 
 // Complaint routes for citizens and staff operations
 router
   .route("/createComplaint")
-  .post(verifyJWT, isCitizen, createComplaint);
+  .post(upload.single('image'),verifyJWT, isCitizen, createComplaint);
 
 router
   .route("/deleteComplaint/:id")

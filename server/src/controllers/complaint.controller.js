@@ -5,12 +5,18 @@ import Complaint from '../models/complaint.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import  User from '../models/user.model.js';
 import { isCitizen, isStaff, verifyJWT } from '../middlewares/auth.middleware.js';
+import { uploadOnCloudinary } from '../utils/Cloudinary.js';
 
 const createComplaint= asyncHandler(async (req,res)=>{
     try {
     
         const {service,location,decription}= req.body;
         const user = req.user._id ? await User.findById(req.user._id) : null;
+        const imageUrl = req.file ? req.file.path : null;
+        if(!imageUrl) throw new ApiError("Image is required",400);
+        const serviceImage = await uploadOnCloudinary(imageUrl,"complaints");
+        if(!serviceImage) throw new ApiError("Failed to upload image",500);
+
         if(!user) throw new ApiError("User not found",404);
         if(!service || !location) throw new ApiError("Service and location are required",400);
         if(decription.length<5){
@@ -24,6 +30,7 @@ const createComplaint= asyncHandler(async (req,res)=>{
             user:user._id,
             service,
             location,
+            imageUrl:serviceImage.secure_url,
             decription
         });
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint created successfully"));
