@@ -9,12 +9,12 @@ import { isCitizen, isStaff, verifyJWT } from '../middlewares/auth.middleware.js
 const createComplaint= asyncHandler(async (req,res)=>{
     try {
     
-        const {service,location,feedback}= req.body;
+        const {service,location,decription}= req.body;
         const user = req.user._id ? await User.findById(req.user._id) : null;
         if(!user) throw new ApiError("User not found",404);
         if(!service || !location) throw new ApiError("Service and location are required",400);
-        if(feedback.length<5){
-            throw new ApiError("Feedback is required",400);
+        if(decription.length<5){
+            throw new ApiError("decription is required",400);
         }
         if(user.accountType !== 'Citizen'){
             throw new ApiError("Only citizens can create complaints",403);
@@ -24,7 +24,7 @@ const createComplaint= asyncHandler(async (req,res)=>{
             user:user._id,
             service,
             location,
-            feedback
+            decription
         });
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint created successfully"));
 } catch (error) {
@@ -113,7 +113,7 @@ const getCitizenComplaints= asyncHandler(async (req,res)=>{
 const getComplaintById= asyncHandler(async (req,res)=>{
     try {
         const {id}= req.params; 
-        const complaint = await Complaint.findById(id).populate('user','firstName lastName email').populate({path:'user',select:'firstName lastName email '});
+        const complaint = await Complaint.findById(id).populate({path:'user',select:'firstName lastName email '});
         if(!complaint) throw new ApiError("Complaint not found",404);
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint fetched successfully"));
     } catch (error) {
