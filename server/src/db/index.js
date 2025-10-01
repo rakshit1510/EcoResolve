@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const connectDB = async () => {
     try {
         const connectionInstance = await mongoose.connect(
-            `${process.env.MONGODB_URI}/SparkDB`
+            `${process.env.MONGODB_URI}/EcoResolve`
         );
         console.log(`\nMongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);
     } catch (error) {
