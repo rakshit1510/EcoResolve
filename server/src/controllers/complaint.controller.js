@@ -10,7 +10,7 @@ import { uploadOnCloudinary } from '../utils/Cloudinary.js';
 const createComplaint= asyncHandler(async (req,res)=>{
     try {
     
-        const {service,location,decription}= req.body;
+        const {service,location,description}= req.body;
         const user = req.user._id ? await User.findById(req.user._id) : null;
         const imageUrl = req.file ? req.file.path : null;
         if(!imageUrl) throw new ApiError("Image is required",400);
@@ -19,20 +19,21 @@ const createComplaint= asyncHandler(async (req,res)=>{
 
         if(!user) throw new ApiError("User not found",404);
         if(!service || !location) throw new ApiError("Service and location are required",400);
-        if(decription.length<5){
-            throw new ApiError("decription is required",400);
-        }
+        if (description.length < 5)
+          throw new ApiError("Description must be at least 5 characters", 400);
+
         if(user.accountType !== 'Citizen'){
             throw new ApiError("Only citizens can create complaints",403);
         }
         
         const complaint = await Complaint.create({
-            user:user._id,
-            service,
-            location,
-            imageUrl:serviceImage.secure_url,
-            decription
+          userId: user._id,
+          service,
+          location,
+          imageUrl: serviceImage.secure_url,
+          description,
         });
+
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint created successfully"));
 } catch (error) {
     throw new ApiError(error?.message || "Something went wrong while creating the complaint",error?.code || 500);

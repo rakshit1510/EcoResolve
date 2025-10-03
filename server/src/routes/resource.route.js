@@ -6,13 +6,14 @@ import {
   updateResource,
   retireResource,
 } from "../controllers/resource.controller.js";
+import { verifyJWT, isStaff } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", createResource); 
-router.get("/", getResources); 
-router.get("/:id", getResourceById); 
-router.put("/:id", updateResource); 
-router.delete("/:id", retireResource); 
+router.post("/", verifyJWT, isStaff, createResource);
+router.get("/", verifyJWT, isStaff, getResources);
+router.get("/:id", verifyJWT, isStaff, getResourceById);
+router.put("/:id", verifyJWT, isStaff, updateResource);
+router.patch("/:id/retire", verifyJWT, isStaff, retireResource);
 
 export default router;

@@ -32,7 +32,7 @@ export const verifyJWT = asyncHandler( async (req,res,next)=>{
 export const isCitizen = asyncHandler(async (req, res, next) => {
     try {
         if (req.user?.accountType !== 'Citizen') {
-            throw new ApiError(401, 'This page is protected only for students');
+            throw new ApiError(401, 'This page is protected only for Citizens');
         }
         next();
     } catch (error) {
@@ -43,7 +43,7 @@ export const isCitizen = asyncHandler(async (req, res, next) => {
 export const isStaff = asyncHandler(async (req, res, next) => {
     try {
         if (req.user?.accountType !== 'Staff') {
-            throw new ApiError(401, 'This page is protected only for instructors');
+            throw new ApiError(401, 'This page is protected only for Staff');
         }
         next();
     } catch (error) {
