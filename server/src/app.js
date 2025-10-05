@@ -7,6 +7,7 @@ import workerRoutes from './routes/worker.route.js'
 import assignmentRoutes from './routes/assignment.route.js'
 import AuthRoutes from './routes/auth.route.js'
 import complaintRoutes from './routes/complaint.route.js'
+import reviewRoutes from './routes/review.route.js'
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use("/api/workers", workerRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/auth", AuthRoutes)
 app.use("/api/complaints", complaintRoutes)
+app.use("/api/reviews", reviewRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
