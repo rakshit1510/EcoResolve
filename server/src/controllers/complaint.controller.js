@@ -123,7 +123,7 @@ const getComplaintById= asyncHandler(async (req,res)=>{
 const updateComplaint= asyncHandler(async (req,res)=>{
     try {
         const {id}= req.params;
-        const {service,location,description}= req.body;
+        const {department,location,description}= req.body;
         const user = req.user._id ? await User.findById(req.user._id) : null;
         if(!user) throw new ApiError(404, "User not found");
         if(user.accountType !== 'Staff'){
@@ -132,7 +132,7 @@ const updateComplaint= asyncHandler(async (req,res)=>{
         const complaint = await Complaint.findById(id);
         if(!complaint) throw new ApiError(404, "Complaint not found");
         const newComplaint = await Complaint.findByIdAndUpdate(id,{
-            service: service || complaint.service,
+            department: department || complaint.department,
             location: location || complaint.location,
             description: description || complaint.description,
             updatedAt: Date.now(),
@@ -143,10 +143,55 @@ const updateComplaint= asyncHandler(async (req,res)=>{
     }
 });
 
+const getComplaintsByDepartment= asyncHandler(async (req,res)=>{
+    try {
+        const {department}= req.body;
+        const user = req.user._id ? await User.findById(req.user._id) : null;
+        if(!user) throw new ApiError(404, "User not found");
+        if(user.accountType !== 'Staff'){
+            throw new ApiError(403, "Only staff can view complaints by department");
+        }
+        const complaints=await Complaint.find({department}).populate( {path: 'userId', select:'firstName lastName email'});
+        if(!complaints) throw new ApiError(404, "No complaints found for this department");
+        return res.status(200).json(new ApiResponse(200,complaints,"Complaints fetched successfully by department"));
+    } catch (error) {
+        throw new ApiError(500,"something went wrong while fetching complaints by department")
+    }
+});
+
+const getComplaintsByStatus= asyncHandler(async(req,res)=>{
+    try {
+        const user=req.user._id ? await User.findById(req.user._id) : null;
+        if(!user) throw new ApiError(404,"User not found");
+        const {status}= req.body;
+        const complaints= await Complaint.find({status}).populate({path:'userId',select:'firstName lastName email'});
+        if(!complaints) throw new ApiError(404,"No complaints found for this status");
+        return res.status(200).json(new ApiResponse(200,complaints,"Complaints fetched successfully by status"));
+    } catch (error) {
+        throw new ApiError(500,"something wents wrong while fetching complaints by status");
+    }
+});
+const getComplaintsByfilter=asyncHandler(async(req,res)=>{
+    try {
+        const user=req.user._id ? await User.findById(req.user._id) : null;
+        if(!user) throw new ApiError(404,"User not found");
+        const credentails=req.body;
+        const complaints= await Complaint.find(credentails).populate({path:'userId',select:'firstName lastName email'});
+        if(!complaints) throw new ApiError(404,"No complaints found for this filter");
+        return res.status(200).json(new ApiResponse(200,complaints,"Complaints fetched successfully by filter"));
+    } catch (error) {
+        throw new ApiError(500,"somethind wents wrong while fetching complaints by filter")
+    }
+});
+
 export {createComplaint,
         getAllComplaints,
         deleteComplaint,
         changeProgressStatus,
         getCitizenComplaints,
-        getComplaintById
+        getComplaintById,
+        updateComplaint,
+        getComplaintsByDepartment,
+        getComplaintsByStatus,
+        getComplaintsByfilter
         };

@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import jwt from 'jsonwebtoken'
 import bcrypt from "bcrypt"
 import otpGenerator from 'otp-generator'
+import accountApprovedTemplate from "../email/templates/accountApprovedTemplate.js";
 import mailSender from "../utils/mailSender.js";
 import OTP from "../models/OTP.model.js";
 import Profile from "../models/profile.model.js";
@@ -373,7 +374,7 @@ export const approveAccount = asyncHandler(async (req, res) => {
             throw new ApiError(500,"Internal ServerError while appoving account");
         }
         if(new_user.approved){
-            await mailSender(new_user.email,"Account Approved","Your account has been approved by the admin. You can now login to your account.");
+            await mailSender(new_user.email,"Account Approved", accountApprovedTemplate(new_user.firstName, new_user.email));
         }
         return res.status(200).json(new ApiResponse(200,new_user,"Account approved successfully"));
 

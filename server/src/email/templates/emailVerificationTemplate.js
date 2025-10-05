@@ -1,13 +1,13 @@
 const otpTemplate = (otp, name) => {
   return `<!DOCTYPE html>
   <html lang="en">
-  
+
   <head>
     <meta charset="UTF-8" />
-    <title>OTP Verification - LearnSpark</title>
+    <title>OTP Verification - EcoResolve</title>
     <style>
       body {
-        background-color: #f9fafb;
+        background-color: #f0fdf4;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
         padding: 0;
@@ -33,7 +33,7 @@ const otpTemplate = (otp, name) => {
       .heading {
         font-size: 22px;
         font-weight: 600;
-        color: #111827;
+        color: #065f46;
         margin-bottom: 10px;
       }
 
@@ -48,8 +48,8 @@ const otpTemplate = (otp, name) => {
         font-size: 28px;
         font-weight: bold;
         letter-spacing: 4px;
-        background-color: #fef3c7;
-        color: #b45309;
+        background-color: #d1fae5;
+        color: #065f46;
         padding: 12px 0;
         width: 200px;
         margin: 20px auto;
@@ -63,31 +63,31 @@ const otpTemplate = (otp, name) => {
       }
 
       .footer a {
-        color: #3b82f6;
+        color: #10b981;
         text-decoration: none;
       }
     </style>
   </head>
-  
+
   <body>
     <div class="container">
-       <a href="https://ibb.co/VYBQYvcQ"><img src="https://i.ibb.co/d4KL4QwL/Screenshot-2025-06-20-231953.png" alt="Screenshot-2025-06-20-231953" border="0"></a>
-         <h1>Welcome to LearnSpark!</h1>    
+       <img class="logo" src="https://i.ibb.co/m1d3p9w/output-onlinepngtools.png" alt="EcoResolve Logo" />
+       <h1>Welcome to EcoResolve!</h1>    
        <div class="heading">Verify Your Email</div>
       <div class="content">
         <p>Hello ${name},</p>
-        <p>Thanks for joining <strong>LearnSpark</strong>! Use the OTP below to verify your email address and activate your account:</p>
+        <p>Thanks for joining <strong>EcoResolve</strong> — the platform where citizens report community issues like potholes, water leakage, and other civic problems, and local authorities work to resolve them.</p>
+        <p>Use the OTP below to verify your email address and start reporting problems in your area:</p>
         <div class="otp-box">${otp}</div>
         <p>This OTP is valid for <strong>3 minutes</strong>. If you did not request this, you can safely ignore this message.</p>
       </div>
       <div class="footer">
-        Need help? Contact us at <a href="mailto:gadeaniruddha2@gmail.com">gadeaniruddha2@gmail.com</a>
+        Need help? Contact us at <a href="mailto:support@ecoresolve.com">support@ecoresolve.com</a>
       </div>
     </div>
   </body>
-  
+
   </html>`;
 };
 
 export default otpTemplate;
-// This template is designed to be used in an email verification context, providing a clean and professional look while ensuring the user has all necessary information to verify their account. The OTP is prominently displayed for easy visibility.

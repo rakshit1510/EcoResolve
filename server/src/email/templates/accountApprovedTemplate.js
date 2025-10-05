@@ -1,10 +1,10 @@
-const passwordUpdated = (email, url) => {
+const accountApprovedTemplate = (name,email) => {
   return `<!DOCTYPE html>
   <html lang="en">
-  
+
   <head>
     <meta charset="UTF-8" />
-    <title>Password Updated - EcoResolve</title>
+    <title>Account Approved - EcoResolve</title>
     <style>
       body {
         margin: 0;
@@ -49,26 +49,6 @@ const passwordUpdated = (email, url) => {
         color: #065f46;
       }
 
-      .footer {
-        font-size: 14px;
-        color: #6b7280;
-        margin-top: 25px;
-      }
-
-      .footer a {
-        color: #10b981;
-        text-decoration: none;
-      }
-
-      .alert {
-        background-color: #d1fae5;
-        color: #065f46;
-        padding: 12px 20px;
-        border-radius: 8px;
-        margin: 20px auto;
-        font-weight: 500;
-      }
-
       .button {
         display: inline-block;
         margin-top: 20px;
@@ -79,26 +59,32 @@ const passwordUpdated = (email, url) => {
         border-radius: 8px;
         font-weight: 600;
       }
+
+      .footer {
+        font-size: 14px;
+        color: #6b7280;
+        margin-top: 25px;
+      }
+
+      .footer a {
+        color: #10b981;
+        text-decoration: none;
+      }
     </style>
   </head>
-  
+
   <body>
     <div class="container">
-      <a href="#">
-        <img src="https://i.ibb.co/m1d3p9w/output-onlinepngtools.png" alt="EcoResolve Logo" class="logo" />
-      </a>
+      <img class="logo" src="https://i.ibb.co/m1d3p9w/output-onlinepngtools.png" alt="EcoResolve Logo" />
       
-      <div class="title">Password Successfully Updated</div>
+      <div class="title">Your Account Has Been Approved!</div>
       
       <div class="content">
-        <p>Hi there,</p>
-        <p>This is a confirmation that the password for your account associated with <span class="highlight">${email}</span> has been changed successfully.</p>
+        <p>Hello ${name},</p>
+        <p>Your account with email address ${email} has been successfully verified.</p>
+        <p>Great news! Your account on <strong>EcoResolve</strong> has been approved by the admin. You can now log in and start reporting issues in your community.</p>
         
-        <div class="alert">
-          If you did not request this change, please contact our support team immediately.
-        </div>
-
-        <a href="${url}" class="button">Login to EcoResolve</a>
+        <a href="https://ecoresolve.com/login" class="button">Login to EcoResolve</a>
       </div>
       
       <div class="footer">
@@ -107,8 +93,8 @@ const passwordUpdated = (email, url) => {
       </div>
     </div>
   </body>
-  
+
   </html>`;
 };
 
-export default passwordUpdated;
+export default accountApprovedTemplate;
