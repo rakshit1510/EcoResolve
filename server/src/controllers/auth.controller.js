@@ -338,3 +338,46 @@ export const logout = asyncHandler(async (req, res) => {
         throw new ApiError(500, error.message || "Something went wrong while logging out");
     }
 });
+
+export const approveAccount = asyncHandler(async (req, res) => {
+    try {
+        const adminId=req.user;
+        const {email}=req.body;
+        if(!adminId){
+            throw new ApiError(400,"Admin not found");
+        }
+        if(!email){
+            throw new ApiError(400,"Email is required to approve account");
+        }
+        const admin=await User.findById(adminId._id);
+        if(!admin || admin.accountType !== "Admin" || !admin.approved){
+            throw new ApiError(403,"You are not authorized to approve accounts");
+        }
+        const _user=await User.findOne({email:email.toLowerCase()});
+        if(!_user){
+            throw new ApiError(404,"User not found");
+        }
+        if(_user.approved || _user.accountType === "Citizen"){
+            throw new ApiError(400,"USer account is already approved");
+        }
+        _user.approved=true;
+        const appro=await _user.save({validateBeforeSave:false});
+        if(!appro){
+            throw new ApiError(500,"somthing wnetys wrong while appriovin the account");
+        }
+        const new_user=await User.findById(_user._id).select("-password -refreshToken");
+        if(!new_user){
+            throw new ApiError(500,"Internal ServerError while appoving account");
+        }
+        if(!new_user.approved){
+            throw new ApiError(500,"Internal ServerError while appoving account");
+        }
+        if(new_user.approved){
+            await mailSender(new_user.email,"Account Approved","Your account has been approved by the admin. You can now login to your account.");
+        }
+        return res.status(200).json(new ApiResponse(200,new_user,"Account approved successfully"));
+
+    } catch (error) {
+        throw new ApiError(500,"Internal ServerError while appoving account");
+    }
+});

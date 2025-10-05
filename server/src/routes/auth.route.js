@@ -9,6 +9,7 @@ import {
     loginCitizen,
     loginAdmin,
     loginStaff,
+    approveAccount
 } from "../controllers/auth.controller.js";
 
 const router = express.Router();
@@ -20,5 +21,7 @@ router.post("/login/citizen", loginCitizen);
 router.post("/login/admin", loginAdmin);
 
 router.post("/login/staff", loginStaff);
+router.post("/logout", verifyJWT, logout);
+router.post("/approve-account", verifyJWT, approveAccount);
 
 export default router;
