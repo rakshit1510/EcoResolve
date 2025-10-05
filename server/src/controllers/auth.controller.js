@@ -76,6 +76,56 @@ export const sendOTP= asyncHandler(async (req, res) => {
     }
 })
 
+export const createSuperAdmin = asyncHandler(async (req, res) => {
+    try {
+        const { firstName, lastName, email, password, confirmPassword, contactNumber } = req.body;
+        
+        if (!firstName || !lastName || !email || !password || !confirmPassword) {
+            throw new ApiError(400, "All fields are required");
+        }
+        if (password !== confirmPassword) {
+            throw new ApiError(400, "Passwords do not match");
+        }
+        
+        // Check if any admin already exists
+        const existingAdmin = await User.findOne({ accountType: "Admin" });
+        if (existingAdmin) {
+            throw new ApiError(403, "Super Admin already exists. Use regular signup for additional admins.");
+        }
+        
+        const checkUserAlreadyExists = await User.findOne({ email: email.toLowerCase() });
+        if (checkUserAlreadyExists) {
+            throw new ApiError(400, "User already exists with this email");
+        }
+        
+        const profileDetails = await Profile.create({
+            gender: null,
+            dateOfBirth: null,
+            about: null,
+            contactNumber: contactNumber,
+        });
+        
+        const user = await User.create({
+            firstName,
+            lastName,
+            email: email.toLowerCase(),
+            password,
+            contactNumber,
+            accountType: "Admin",
+            additionalDetails: profileDetails._id,
+            approved: true, // Super admin is auto-approved
+        });
+
+        const createdUser = await User.findById(user._id).select("-password -refreshToken");
+        
+        return res.status(201).json(
+            new ApiResponse(200, createdUser, "Super Admin created successfully!")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while creating super admin");
+    }
+});
+
 export const Signup = asyncHandler(async (req, res) => {
     try {
         const { firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp } = req.body;
@@ -112,6 +162,13 @@ export const Signup = asyncHandler(async (req, res) => {
         let approved = true;
         if(accountType === "Staff" || accountType === "Admin") {
             approved = false; // Staff and Admin accounts need to be approved by an existing Admin
+            
+            if(accountType === "Admin") {
+                const existingAdmin = await User.findOne({ accountType: "Admin", approved: true });
+                if (!existingAdmin) {
+                    approved = true;
+                }
+            }
         }
         // Create the user
         let image = null;
