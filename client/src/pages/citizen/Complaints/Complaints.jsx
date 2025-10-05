@@ -63,7 +63,9 @@ export default function Complaints() {
             setMessage("Complaint submitted successfully!");
             setFormData({ department: "", location: "", description: "", image: null });
         } catch (error) {
-            setMessage(error.response?.data?.message || "Failed to submit complaint");
+            // console.log('Error response:', error.response);
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || "Failed to submit complaint";
+            setMessage(errorMessage);
         } finally {
             setLoading(false);
         }

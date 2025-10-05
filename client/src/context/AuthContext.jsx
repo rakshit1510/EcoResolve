@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
             
             // Store token in localStorage
             localStorage.setItem('accessToken', accessToken);
-            console.log('Token stored:', accessToken);
+            // console.log('Token stored:', accessToken);
             
             setUser({ email, accountType, accessToken });
             return { user: { email, accountType } };
