@@ -1,111 +1,341 @@
-import User from "../models/user.model.js";
-
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import  User  from "../models/user.model.js";
+import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import {ApiResponse} from '../utils/ApiResponse.js'
+import mongoose from "mongoose";
+import jwt from 'jsonwebtoken'
+import bcrypt from "bcrypt"
+import otpGenerator from 'otp-generator'
+import mailSender from "../utils/mailSender.js";
+import OTP from "../models/OTP.model.js";
+import Profile from "../models/profile.model.js";
+import otpTemplate from "../email/templates/emailVerificationTemplate.js";
+import passwordUpdated from "../email/templates/passwordUpdate.js";
 // Citizen Signup
-export const signupCitizen = async (req, res) => {
-  try {
-    const { firstName, lastName, email, password } = req.body;
+const generateAccessAndRefreshToken= async(userId)=>{
+    try {
+        const user=await User.findById(userId);
+        if(!user){
+            throw new ApiError(404, "User not found");
+        }
+        const accessToken=user.generateAccessToken()
+        // console.log("Generating access and refresh token for user:", user.email);
+        const refreshToken=user.generateRefreshToken()
+        user.refreshToken=refreshToken
 
-    if (!firstName || !lastName || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+        await user.save({ validateBeforeSave: false })
+
+        return {accessToken,refreshToken}
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
+     
     }
+}
 
-    // Password validation
-    if (password.length < 8) {
-      return res.status(400).json({ message: "Password must be at least 8 characters long" });
+const sendOTP= asyncHandler(async (req, res) => {
+    try {
+        const {email}= req.body;
+        console.log("Email received for OTP:", req.body );
+        // if (!email) {
+        //     console.log("Email is required");
+        //     throw new ApiError(400, "Email is required");
+        // }
+        console.log("Sending OTP to user");
+        console.log(email);
+        const checkUserPresent= await User.findOne({ email: email.toLowerCase() });
+        if (checkUserPresent) {
+            throw new ApiError(400, "User already exists with this email");
+        }   
+        const otp = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            specialChars: false,
+            lowerCaseAlphabets: false,
+            digits: true
+        });
+
+           const name = email.split('@')[0].split('.').map(part => part.replace(/\d+/g, '')).join(' ');
+        console.log(name);
+        await mailSender(email, 'Verification Email from EcoResolve', otpTemplate(otp,name));
+        const otpData = await OTP.create({
+            email: email.toLowerCase(),
+            otp: otp
+        });
+        if(!otpData) {
+            throw new ApiError(500, "Something went wrong while saving OTP");
+        }
+        return res.status(200).json(
+            new ApiResponse(200, "OTP sent successfully", {
+                email: email.toLowerCase(),
+                otpId: otpData._id
+            })
+        );
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while sending OTP ");
     }
+})
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({ 
-        message: "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character" 
-      });
+export const Signup = asyncHandler(async (req, res) => {
+    try {
+        const { firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp } = req.body;
+        if (!firstName || !lastName || !email || !password || !confirmPassword || !accountType  || !otp) {
+            throw new ApiError(400, "All fields are required");
+        }
+        if (password !== confirmPassword) {
+            throw new ApiError(400, "Passwords do not match");
+        }
+        const checkUserAlreadyExists = await User.findOne({ email: email.toLowerCase() });
+        if (checkUserAlreadyExists) {
+            throw new ApiError(400, "User already exists with this email");
+        }
+        
+        // Find the most recent OTP for this email
+        const recentOtp = await OTP.findOne({ email: email.toLowerCase() }).sort({ createdAt: -1 });
+        
+        if (!recentOtp) {
+            throw new ApiError(400, "OTP not found or expired");
+            console.log("Signup request received",firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp);
+        }
+        if (recentOtp.otp !== otp) {
+            throw new ApiError(400, "Invalid OTP");
+        }
+        const profileDetails = await Profile.create({
+            gender: null,
+            dateOfBirth: null,
+            about: null,
+            contactNumber: contactNumber,
+        });
+        if (!profileDetails) {
+            throw new ApiError(500, "Something went wrong while creating profile details");
+        }
+        let approved = true;
+        if(accountType === "Staff" || accountType === "Admin") {
+            approved = false; // Staff and Admin accounts need to be approved by an existing Admin
+        }
+        // Create the user
+        let image = null;
+        if (req.file) {
+            image = await uploadOnCloudinary(req.file.path, "users");
+            if (!image) {
+                throw new ApiError(500, "Something went wrong while uploading image");
+            }
+        }
+        const user = await User.create({
+            firstName,
+            lastName,
+            email: email.toLowerCase(),
+            password,
+            contactNumber,
+            accountType,
+            additionalDetails: profileDetails._id,
+            approved: approved,
+            image: image ? image.url : undefined,
+        });
+
+        const createdUser = await User.findById(user._id).select(
+            "-password -refreshToken"
+        );
+        if (!createdUser) {
+            throw new ApiError(500, "Something went wrong while registering the user");
+        }
+        return res.status(201).json(
+            new ApiResponse(200, createdUser, "User registered Successfully!!")
+        );
+
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while signing up");
     }
+});
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
-    }
-
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      password,
-      accountType: "Citizen",
-      additionalDetails: req.body.additionalDetails,
-    });
-
-    res.status(201).json({ message: "Citizen registered successfully", user });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+co
 
 // Citizen Login
-export const loginCitizen = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email, accountType: "Citizen" });
+export const loginCitizen = asyncHandler(async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            throw new ApiError(400, "Email and password are required");
+        }
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+        const isPasswordCorrect = await user.isPasswordCorrect(password);
+        if (!isPasswordCorrect) {
+            throw new ApiError(401, "Invalid credentials");
+        }
+        if(user.accountType !== "Citizen"){
+            throw new ApiError(403, "You are not authorized to login as Citizen");
+        }
+        if(!user.approved){
+            throw new ApiError(403, "Your account is not approved yet. Please contact admin.");
+        }
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+        // Fetch user details excluding sensitive fields
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+        if (!loggedInUser) {
+            throw new ApiError(500, "Something went wrong while fetching user details");
+        }
 
-    if (!user) return res.status(404).json({ message: "Citizen not found" });
+        // Set cookie options
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        };
 
-    const isPasswordValid = await user.isPasswordCorrect(password);
-    if (!isPasswordValid)
-      return res.status(401).json({ message: "Invalid credentials" });
-
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-
-    res
-      .status(200)
-      .json({ message: "Login successful", accessToken, refreshToken });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+            new ApiResponse(
+                200,
+                {
+                user: loggedInUser,
+                accessToken,
+                refreshToken
+                },
+                "Citizen logged in Successfully"
+            )
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while citizen logging in");
+    }
+});
 // Admin Login
-export const loginAdmin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email, accountType: "Admin" });
+export const loginAdmin =  asyncHandler(async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            throw new ApiError(400, "Email and password are required");
+        }
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            throw new ApiError(404, "admin not found");
+        }
+        const isPasswordCorrect = await user.isPasswordCorrect(password);
+        if (!isPasswordCorrect) {
+            throw new ApiError(401, "Invalid credentials");
+        }
+        if(user.accountType !== "Admin"){
+            throw new ApiError(403, "You are not authorized to login as Citizen");
+        }
+        if(!user.approved){
+            throw new ApiError(403, "Your account is not approved yet. Please contact admin.");
+        }
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+        // Fetch user details excluding sensitive fields
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+        if (!loggedInUser) {
+            throw new ApiError(500, "Something went wrong while fetching user details");
+        }
 
-    if (!user) return res.status(404).json({ message: "Admin not found" });
+        // Set cookie options
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        };
 
-    const isPasswordValid = await user.isPasswordCorrect(password);
-    if (!isPasswordValid)
-      return res.status(401).json({ message: "Invalid credentials" });
-
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-
-    res
-      .status(200)
-      .json({ message: "Admin login successful", accessToken, refreshToken });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+            new ApiResponse(
+                200,
+                {
+                user: loggedInUser,
+                accessToken,
+                refreshToken
+                },
+                "Admin logged in Successfully"
+            )
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while admin logging in");
+    }
+});
 
 // Staff Login
-export const loginStaff = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email, accountType: "Staff" });
+export const loginStaff =  asyncHandler(async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            throw new ApiError(400, "Email and password are required");
+        }
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+        const isPasswordCorrect = await user.isPasswordCorrect(password);
+        if (!isPasswordCorrect) {
+            throw new ApiError(401, "Invalid credentials");
+        }
+        if(user.accountType !== "Staff"){
+            throw new ApiError(403, "You are not authorized to login as Staff");
+        }
+        if(!user.approved){
+            throw new ApiError(403, "Your account is not approved yet. Please contact admin.");
+        }
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+        // Fetch user details excluding sensitive fields
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+        if (!loggedInUser) {
+            throw new ApiError(500, "Something went wrong while fetching user details");
+        }
 
-    if (!user) return res.status(404).json({ message: "Staff not found" });
+        // Set cookie options
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        };
 
-    const isPasswordValid = await user.isPasswordCorrect(password);
-    if (!isPasswordValid)
-      return res.status(401).json({ message: "Invalid credentials" });
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+            new ApiResponse(
+                200,
+                {
+                user: loggedInUser,
+                accessToken,
+                refreshToken
+                },
+                "Staff logged in Successfully"
+            )
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while Staff logging in");
+    }
+});
 
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-
-    res
-      .status(200)
-      .json({ message: "Staff login successful", accessToken, refreshToken });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+export const logout = asyncHandler(async (req, res) => {
+    try {
+        const userId = req.user;
+        if (!userId) {
+            throw new ApiError(400, "User not found");
+        }
+        const user = await User.findById(userId._id);
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+        user.refreshToken = null;
+        await user.save({ validateBeforeSave: false });
+        
+        return res
+            .status(200)
+            .clearCookie("accessToken")
+            .clearCookie("refreshToken")
+            .json(new ApiResponse(200, null, "User logged out successfully"));
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while logging out");
+    }
+});

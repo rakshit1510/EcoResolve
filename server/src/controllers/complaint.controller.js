@@ -129,6 +129,29 @@ const getComplaintById= asyncHandler(async (req,res)=>{
     }
 });
 
+const updateComplaint= asyncHandler(async (req,res)=>{
+    try {
+        const {id}= req.params;
+        const {service,location,description}= req.body;
+        const user = req.user._id ? await User.findById(req.user._id) : null;
+        if(!user) throw new ApiError("User not found",404);
+        if(user.accountType !== 'Staff'){
+            throw new ApiError("Only staff can update complaints",403);
+        }
+        const complaint = await Complaint.findById(id);
+        if(!complaint) throw new ApiError("Complaint not found",404);
+        const newComplaint = await Complaint.findByIdAndUpdate(id,{
+            service: service || complaint.service,
+            location: location || complaint.location,
+            description: description || complaint.description,
+            updatedAt: Date.now(),
+        },{new:true});
+        return res.status(200).json(new ApiResponse(200,newComplaint,"Complaint updated successfully"));
+    } catch (error) {
+        throw new ApiError(error?.message || "Something went wrong while updating the complaint",error?.code || 500);
+    }
+});
+
 export {createComplaint,
         getAllComplaints,
         deleteComplaint,

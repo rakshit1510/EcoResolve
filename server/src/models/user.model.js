@@ -33,6 +33,18 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profile",
     },
+    approved: {
+      type: Boolean,
+      default: true,
+    },
+    active:{
+      type: Boolean,
+      default: true,
+    },
+    image: {
+      type: String,
+      default: null,
+    }
   },
   { timestamps: true }
 );
