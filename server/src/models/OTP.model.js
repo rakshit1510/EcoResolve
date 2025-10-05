@@ -20,6 +20,7 @@ const OTPSchema = new mongoose.Schema({
 
 async function sendVerificationEmail(email, otp) {
     try {
+        const name = email.split('@')[0];
         const mailResponse = await mailSender(
             email,
             'Verification Email from EcoResolve',
