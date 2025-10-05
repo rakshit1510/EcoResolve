@@ -129,7 +129,7 @@ export const createSuperAdmin = asyncHandler(async (req, res) => {
 
 export const Signup = asyncHandler(async (req, res) => {
     try {
-        const { firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp } = req.body;
+        const { firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp ,department} = req.body;
         if (!firstName || !lastName || !email || !password || !confirmPassword || !accountType  || !otp) {
             throw new ApiError(400, "All fields are required");
         }
@@ -163,12 +163,9 @@ export const Signup = asyncHandler(async (req, res) => {
         let approved = true;
         if(accountType === "Staff" || accountType === "Admin") {
             approved = false; // Staff and Admin accounts need to be approved by an existing Admin
-            
-            if(accountType === "Admin") {
-                const existingAdmin = await User.findOne({ accountType: "Admin", approved: true });
-                if (!existingAdmin) {
-                    approved = true;
-                }
+
+            if((accountType === "Staff" || accountType === "Admin") && !department){
+                throw new ApiError(400, "Department is required for Staff and Admin accounts");
             }
         }
         // Create the user
@@ -281,7 +278,7 @@ export const loginAdmin =  asyncHandler(async (req, res) => {
             throw new ApiError(403, "You are not authorized to login as Citizen");
         }
         if(!user.approved){
-            throw new ApiError(403, "Your account is not approved yet. Please contact admin.");
+            throw new ApiError(403, "Your account is not approved yet. Please contact super admin.");
         }
         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
         // Fetch user details excluding sensitive fields
@@ -483,3 +480,58 @@ export const approveAdminAccount = asyncHandler(async (req, res) => {
     }
 });
 
+export const fetchUnapprovedAdmin = asyncHandler(async (req, res) => {
+    try {
+        const superadminId=req.user;
+       if(!superadminId){
+           throw new ApiError(400,"SuperAdmin not found");
+       }
+       const unapprovedAdmins = await User.find({ accountType: "Admin", approved: false });
+       if(!unapprovedAdmins){
+           throw new ApiError(404,"No unapproved admin accounts found");
+       }
+       return res.status(200).json(new ApiResponse(200, unapprovedAdmins, "Unapproved admin accounts fetched successfully"));
+
+    } catch (error) {
+        throw new ApiError(500,"Internal server error while fetching unapproved admin accounts");
+    }
+});
+export const fetchUnapprovedStaff = asyncHandler(async (req, res) => {
+try {
+    const adminId=req.user;
+    if(!adminId){
+        throw new ApiError(400,"Admin not found");
+    }
+    const admin=await User.findById(adminId._id);
+    if(!admin || admin.accountType !== "Admin" || !admin.approved){
+        throw new ApiError(403,"You are not authorized to view unapproved staff accounts");
+    }
+    const unapprovedStaff = await User.find({ accountType: "Staff", approved: false });
+    if(!unapprovedStaff){
+        throw new ApiError(404,"No unapproved staff accounts found");
+    }
+    return res.status(200).json(new ApiResponse(200, unapprovedStaff, "Unapproved staff accounts fetched successfully"));
+} catch (error) {
+    throw new ApiError(500,"Internal server error while fetching unapproved staff accounts");
+}
+});
+
+export const getAccountByQuery= asyncHandler(async (req, res) => {
+    try {
+        const credentials = req.body;
+        const admin= req.user._id ? await User.findById(req.user._id) : null;
+        if(!admin || (admin.accountType !== "Admin" && admin.accountType!== "SuperAdmin") || !admin.approved){
+            throw new ApiError(403,"You are not authorized to view user accounts");
+        }
+        if(Object.keys(credentials).length === 0){
+            throw new ApiError(400, "At least one query parameter is required");
+        }
+        const user = await User.findOne(credentials).select("-password -refreshToken");
+        if(!user){
+            throw new ApiError(404, "User not found");
+        }
+        return res.status(200).json(new ApiResponse(200, user, "User fetched successfully"));
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while fetching user by query");
+    }
+});

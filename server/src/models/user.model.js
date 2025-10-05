@@ -29,6 +29,16 @@ const userSchema = new mongoose.Schema(
       enum: ["Citizen", "Staff", "Admin","SuperAdmin"],
       required: true,
     },
+    department: {
+      type: String,
+      enum: [
+      'Public Works Department (PWD)',
+      'Sanitation Department',
+      'Water Supply Department', 
+      'Electricity Department',
+      'Parks & Environment Department'
+    ],
+      default: null,},
     additionalDetails: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profile",
