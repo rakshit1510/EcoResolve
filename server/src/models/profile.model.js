@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
 const profileSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  gender: { type: String },
+  dateOfBirth: { type: Date },
+  about: { type: String },
+  contactNumber: { type: String },
 }, { timestamps: true });
 const Profile = mongoose.model('Profile', profileSchema);
 

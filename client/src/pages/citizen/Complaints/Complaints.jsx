@@ -43,8 +43,21 @@ export default function Complaints() {
             formDataToSend.append("description", formData.description);
             formDataToSend.append("image", formData.image);
 
+            const token = localStorage.getItem('accessToken');
+            // console.log('Token from localStorage:', token);
+            
+            if (!token) {
+                setMessage('Please login first');
+                setLoading(false);
+                return;
+            }
+            
             const res = await axios.post("http://localhost:8000/api/complaints/createComplaint", formDataToSend, {
-                headers: { "Content-Type": "multipart/form-data" }
+                headers: { 
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
+                },
+                withCredentials: true
             });
 
             setMessage("Complaint submitted successfully!");

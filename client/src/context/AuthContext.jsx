@@ -15,7 +15,13 @@ export const AuthProvider = ({ children }) => {
             else if (accountType === "Staff") endpoint = "http://localhost:8000/api/auth/login/staff";
             
             const res = await axios.post(endpoint, { email, password });
-            setUser({ email, accountType, accessToken: res.data.accessToken });
+            const { accessToken } = res.data.data;
+            
+            // Store token in localStorage
+            localStorage.setItem('accessToken', accessToken);
+            console.log('Token stored:', accessToken);
+            
+            setUser({ email, accountType, accessToken });
             return { user: { email, accountType } };
         } catch (err) {
             throw err.response?.data || { message: "Login failed" };
