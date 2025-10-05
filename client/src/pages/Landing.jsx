@@ -18,13 +18,13 @@ export default function LandingPage() {
                             onClick={() => navigate("/signup")}
                             className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 hover:scale-105 transition cursor-pointer"
                         >
-                            Sign Up (Citizen)
+                            Sign Up
                         </button>
                         <button
                             onClick={() => navigate("/login")}
                             className="w-full py-3 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 hover:scale-105 transition cursor-pointer"
                         >
-                            Login (Citizen / Staff / Admin)
+                            Login
                         </button>
                     </div>
                 </div>
