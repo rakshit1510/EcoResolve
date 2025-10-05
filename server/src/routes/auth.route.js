@@ -6,6 +6,7 @@ import {
    logout,
     sendOTP,
     Signup,
+    createSuperAdmin,
     loginCitizen,
     loginAdmin,
     loginStaff,
@@ -14,6 +15,7 @@ import {
 
 const router = express.Router();
 
+router.post("/create-super-admin", createSuperAdmin);
 router.post("/signup",upload.single('image'),  Signup);
 router.route('/sendotp').post(upload.none(), sendOTP);
 router.post("/login/citizen", loginCitizen);
