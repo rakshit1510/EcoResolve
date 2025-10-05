@@ -4,59 +4,50 @@ import {ApiResponse} from '../utils/ApiResponse.js';
 import Complaint from '../models/complaint.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import  User from '../models/user.model.js';
-import { isCitizen, isStaff, verifyJWT } from '../middlewares/auth.middleware.js';
 import { uploadOnCloudinary } from '../utils/Cloudinary.js';
 
 const createComplaint= asyncHandler(async (req,res)=>{
-    try {
+    const {department,location,description}= req.body;
+    const user = req.user._id ? await User.findById(req.user._id) : null;
+    const imageUrl = req.file ? req.file.path : null;
     
-        const {service,location,description}= req.body;
-        const user = req.user._id ? await User.findById(req.user._id) : null;
-        const imageUrl = req.file ? req.file.path : null;
-        if(!imageUrl) throw new ApiError("Image is required",400);
-        const serviceImage = await uploadOnCloudinary(imageUrl,"complaints");
-        if(!serviceImage) throw new ApiError("Failed to upload image",500);
+    if(!imageUrl) throw new ApiError(400, "Image is required");
+    if(!user) throw new ApiError(404, "User not found");
+    if(!department || !location) throw new ApiError(400, "Department and location are required");
+    if (!description || description.length < 20) throw new ApiError(400, "Description must be at least 20 characters");
+    if(user.accountType !== 'Citizen') throw new ApiError(403, "Only citizens can create complaints");
+    
+    const serviceImage = await uploadOnCloudinary(imageUrl);
+    if(!serviceImage) throw new ApiError(500, "Failed to upload image");
+    
+    const complaint = await Complaint.create({
+      userId: user._id,
+      department,
+      location,
+      imageUrl: serviceImage.secure_url,
+      description,
+    });
 
-        if(!user) throw new ApiError("User not found",404);
-        if(!service || !location) throw new ApiError("Service and location are required",400);
-        if (description.length < 5)
-          throw new ApiError("Description must be at least 5 characters", 400);
-
-        if(user.accountType !== 'Citizen'){
-            throw new ApiError("Only citizens can create complaints",403);
-        }
-        
-        const complaint = await Complaint.create({
-          userId: user._id,
-          service,
-          location,
-          imageUrl: serviceImage.secure_url,
-          description,
-        });
-
-        return res.status(200).json(new ApiResponse(200,complaint,"Complaint created successfully"));
-} catch (error) {
-    throw new ApiError(error?.message || "Something went wrong while creating the complaint",error?.code || 500);
-}
+    return res.status(200).json(new ApiResponse(200,complaint,"Complaint created successfully"));
 });
 
 const deleteComplaint= asyncHandler(async (req,res)=>{
     try {
         const {id}= req.params;
         const user = req.user._id ? await User.findById(req.user._id) : null;
-        if(!user) throw new ApiError("User not found",404); 
+        if(!user) throw new ApiError(404, "User not found"); 
         if(user.accountType !== 'Citizen'){
-            throw new ApiError("Only citizens can delete complaints",403);
+            throw new ApiError(403, "Only citizens can delete complaints");
         }
         const complaint = await Complaint.findById(id);
-        if(!complaint) throw new ApiError("Complaint not found",404);
-        if(complaint.user._id.toString() !== user._id.toString()){
-            throw new ApiError("You are not authorized to delete this complaint",403);
+        if(!complaint) throw new ApiError(404, "Complaint not found");
+        if(complaint.userId.toString() !== user._id.toString()){
+            throw new ApiError(403, "You are not authorized to delete this complaint");
         }   
         await complaint.remove();
         return res.status(200).json(new ApiResponse(200,null,"Complaint deleted successfully"));
     } catch (error) {
-        throw new ApiError(error?.message || "Something went wrong while deleting the complaint",error?.code || 500);
+        throw new ApiError(error?.code || 500, error?.message || "Something went wrong while deleting the complaint");
     }
 });
 
@@ -65,67 +56,67 @@ const changeProgressStatus= asyncHandler(async (req,res)=>{
         const {id}= req.params; 
         const {status}= req.body;
         const user = req.user._id ? await User.findById(req.user._id) : null;
-        if(!user) throw new ApiError("User not found",404); 
+        if(!user) throw new ApiError(404, "User not found"); 
         if(user.accountType !== 'Staff'){
-            throw new ApiError("Only staff can change the progress status of complaints",403);
+            throw new ApiError(403, "Only staff can change the progress status of complaints");
         }
         const complaint = await Complaint.findById(id);
-        if(!complaint) throw new ApiError("Complaint not found",404);
+        if(!complaint) throw new ApiError(404, "Complaint not found");
         if(!['pending','open', 'in-progress', 'resolved'].includes(status)){
-            throw new ApiError("Invalid status",400);
+            throw new ApiError(400, "Invalid status");
         }
         complaint.status=status;
         await complaint.save();
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint status updated successfully"));
     } catch (error) {
-        throw new ApiError(error?.message || "Something went wrong while changing the progress status of the complaint",error?.code || 500);
+        throw new ApiError(error?.code || 500, error?.message || "Something went wrong while changing the progress status of the complaint");
     }
 })
 const getAllComplaints= asyncHandler(async (req,res)=>{
     try {
         const user = req.user._id ? await User.findById(req.user._id) : null;
 
-        if(!user) throw new ApiError("User not found",404); 
+        if(!user) throw new ApiError(404, "User not found"); 
         let complaints;
         if(user.accountType === 'Citizen'){
-            complaints = await Complaint.find({user:user._id}).populate('user','firstName lastName email');
+            complaints = await Complaint.find({userId:user._id}).populate('userId','firstName lastName email');
         }
         else if(user.accountType === 'Staff'){
-            complaints = await Complaint.find().populate('user','firstName lastName email');
+            complaints = await Complaint.find().populate('userId','firstName lastName email');
         }
         else{
-            throw new ApiError("Only citizens and staff can view complaints",403);
+            throw new ApiError(403, "Only citizens and staff can view complaints");
         }
-        if(!complaints) throw new ApiError("No complaints found",404);
+        if(!complaints) throw new ApiError(404, "No complaints found");
         return res.status(200).json(new ApiResponse(200,complaints,"Complaints fetched successfully"));
     } catch (error) {
-        throw new ApiError(error?.message || "Something went wrong while fetching the complaints",error?.code || 500);
+        throw new ApiError(error?.code || 500, error?.message || "Something went wrong while fetching the complaints");
     }
 });
 
 const getCitizenComplaints= asyncHandler(async (req,res)=>{
     try {
         const user = req.user._id ? await User.findById(req.user._id) : null;   
-        if(!user) throw new ApiError("User not found",404);
+        if(!user) throw new ApiError(404, "User not found");
         if(user.accountType !== 'Citizen'){
-            throw new ApiError("Only citizens can view their complaints",403);
+            throw new ApiError(403, "Only citizens can view their complaints");
         }
-        const complaints = await Complaint.find({user:user._id}).populate('user','firstName lastName email');
-        if(!complaints) throw new ApiError("No complaints found",404);
+        const complaints = await Complaint.find({userId:user._id}).populate('userId','firstName lastName email');
+        if(!complaints) throw new ApiError(404, "No complaints found");
         return res.status(200).json(new ApiResponse(200,complaints,"Complaints fetched successfully"));
     } catch (error) {
-        throw new ApiError(error?.message || "Something went wrong while fetching the complaints",error?.code || 500);
+        throw new ApiError(error?.code || 500, error?.message || "Something went wrong while fetching the complaints");
     }
 });
 
 const getComplaintById= asyncHandler(async (req,res)=>{
     try {
         const {id}= req.params; 
-        const complaint = await Complaint.findById(id).populate({path:'user',select:'firstName lastName email '});
-        if(!complaint) throw new ApiError("Complaint not found",404);
+        const complaint = await Complaint.findById(id).populate({path:'userId',select:'firstName lastName email '});
+        if(!complaint) throw new ApiError(404, "Complaint not found");
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint fetched successfully"));
     } catch (error) {
-        throw new ApiError(error?.message || "Something went wrong while fetching the complaint",error?.code || 500);
+        throw new ApiError(error?.code || 500, error?.message || "Something went wrong while fetching the complaint");
     }
 });
 
@@ -134,12 +125,12 @@ const updateComplaint= asyncHandler(async (req,res)=>{
         const {id}= req.params;
         const {service,location,description}= req.body;
         const user = req.user._id ? await User.findById(req.user._id) : null;
-        if(!user) throw new ApiError("User not found",404);
+        if(!user) throw new ApiError(404, "User not found");
         if(user.accountType !== 'Staff'){
-            throw new ApiError("Only staff can update complaints",403);
+            throw new ApiError(403, "Only staff can update complaints");
         }
         const complaint = await Complaint.findById(id);
-        if(!complaint) throw new ApiError("Complaint not found",404);
+        if(!complaint) throw new ApiError(404, "Complaint not found");
         const newComplaint = await Complaint.findByIdAndUpdate(id,{
             service: service || complaint.service,
             location: location || complaint.location,
@@ -148,7 +139,7 @@ const updateComplaint= asyncHandler(async (req,res)=>{
         },{new:true});
         return res.status(200).json(new ApiResponse(200,newComplaint,"Complaint updated successfully"));
     } catch (error) {
-        throw new ApiError(error?.message || "Something went wrong while updating the complaint",error?.code || 500);
+        throw new ApiError(error?.code || 500, error?.message || "Something went wrong while updating the complaint");
     }
 });
 

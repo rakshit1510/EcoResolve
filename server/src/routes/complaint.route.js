@@ -13,7 +13,7 @@ const router = Router();
 // Complaint routes for citizens and staff operations
 router
   .route("/createComplaint")
-  .post(upload.single('image'),verifyJWT, isCitizen, createComplaint);
+  .post(verifyJWT, isCitizen, upload.single('image'), createComplaint);
 
 router
   .route("/deleteComplaint/:id")
