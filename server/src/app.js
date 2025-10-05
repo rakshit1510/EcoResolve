@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import resourcesRoutes from './routes/resource.route.js'
 import workerRoutes from './routes/worker.route.js'
 import assignmentRoutes from './routes/assignment.route.js'
+import AuthRoutes from './routes/auth.route.js'
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use('/api/resources', resourcesRoutes)
 app.use("/api/workers", workerRoutes);
 app.use("/api/assignments", assignmentRoutes);
+app.use("/api/auth", AuthRoutes)
 
 
 
