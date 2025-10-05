@@ -6,6 +6,7 @@ import resourcesRoutes from './routes/resource.route.js'
 import workerRoutes from './routes/worker.route.js'
 import assignmentRoutes from './routes/assignment.route.js'
 import AuthRoutes from './routes/auth.route.js'
+import complaintRoutes from './routes/complaint.route.js'
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use('/api/resources', resourcesRoutes)
 app.use("/api/workers", workerRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/auth", AuthRoutes)
+app.use("/api/complaints", complaintRoutes)
 
 
 

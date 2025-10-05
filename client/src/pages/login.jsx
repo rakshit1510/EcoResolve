@@ -7,15 +7,15 @@ export default function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [accountType, setAccountType] = useState("Citizen");
     const [error, setError] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         try {
-            const res = await login(email, password);
-            const accountType = res.user.accountType;
-
+            await login(email, password, accountType);
+            
             if (accountType === "Citizen") navigate("/citizen");
             else if (accountType === "Staff") navigate("/staff");
             else if (accountType === "Admin") navigate("/admin");
@@ -33,6 +33,16 @@ export default function Login() {
                 <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
                 {error && <p className="text-red-500 mb-4">{error}</p>}
+
+                <select
+                    value={accountType}
+                    onChange={(e) => setAccountType(e.target.value)}
+                    className="w-full p-3 mb-4 border rounded"
+                >
+                    <option value="Citizen">Citizen</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Admin">Admin</option>
+                </select>
 
                 <input
                     type="email"

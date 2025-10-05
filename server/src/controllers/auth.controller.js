@@ -13,7 +13,7 @@ import Profile from "../models/profile.model.js";
 import otpTemplate from "../email/templates/emailVerificationTemplate.js";
 import passwordUpdated from "../email/templates/passwordUpdate.js";
 // Citizen Signup
-const generateAccessAndRefreshToken= async(userId)=>{
+export const generateAccessAndRefreshToken= async(userId)=>{
     try {
         const user=await User.findById(userId);
         if(!user){
@@ -34,7 +34,7 @@ const generateAccessAndRefreshToken= async(userId)=>{
     }
 }
 
-const sendOTP= asyncHandler(async (req, res) => {
+export const sendOTP= asyncHandler(async (req, res) => {
     try {
         const {email}= req.body;
         console.log("Email received for OTP:", req.body );
@@ -148,7 +148,6 @@ export const Signup = asyncHandler(async (req, res) => {
     }
 });
 
-co
 
 // Citizen Login
 export const loginCitizen = asyncHandler(async (req, res) => {

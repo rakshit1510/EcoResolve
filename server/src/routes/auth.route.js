@@ -1,9 +1,8 @@
 import express from "express";
 import { Router } from "express";
-import { verifyJWT,isAdmin,isInstructor,isStudent } from "../middlewares/auth.middleware.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import {   
-   resetPasswordToken,
    logout,
     sendOTP,
     Signup,

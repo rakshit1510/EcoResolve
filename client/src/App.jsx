@@ -3,6 +3,11 @@ import Landing from "./pages/Landing.jsx";
 import CitizenSignup from "./pages/citizen/Signup.jsx";
 import Login from "./pages/Login.jsx";
 import CitizenDashboard from "./pages/citizen/Dashboard.jsx";
+import Geotagging from "./pages/citizen/Geotagging/Geotagging.jsx";
+import Complaints from "./pages/citizen/Complaints/Complaints.jsx";
+import ComplaintStatus from "./pages/citizen/Complaints/ComplaintStatus.jsx";
+import ProfileOptions from "./pages/citizen/ProfileOptions.jsx";
+import Feedback from "./pages/citizen/Feedback.jsx";
 import StaffDashboard from "./pages/staff/Dashboard.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -18,6 +23,11 @@ function App() {
         {/* Citizen Routes */}
         <Route element={<ProtectedRoute allowedRoles={["Citizen"]} />}>
           <Route path="/citizen" element={<CitizenDashboard />} />
+          <Route path="/citizen/geotagging" element={<Geotagging />} />
+          <Route path="/citizen/complaints" element={<Complaints />} />
+          <Route path="/citizen/complaint-status" element={<ComplaintStatus />} />
+          <Route path="/citizen/profile" element={<ProfileOptions />} />
+          <Route path="/citizen/feedback" element={<Feedback />} />
         </Route>
 
         {/* Staff Routes */}

@@ -7,11 +7,16 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const login = async (email, password) => {
+    const login = async (email, password, accountType = "Citizen") => {
         try {
-            const res = await axios.post("/api/users/login", { email, password }, { withCredentials: true });
-            setUser(res.data.user);
-            return res.data;
+            let endpoint;
+            if (accountType === "Citizen") endpoint = "http://localhost:8000/api/auth/login/citizen";
+            else if (accountType === "Admin") endpoint = "http://localhost:8000/api/auth/login/admin";
+            else if (accountType === "Staff") endpoint = "http://localhost:8000/api/auth/login/staff";
+            
+            const res = await axios.post(endpoint, { email, password });
+            setUser({ email, accountType, accessToken: res.data.accessToken });
+            return { user: { email, accountType } };
         } catch (err) {
             throw err.response?.data || { message: "Login failed" };
         }
