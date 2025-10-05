@@ -1,5 +1,5 @@
 import express from 'express';
-import asyncHandler from 'express-async-handler';
+import asyncHandler from '../utils/asyncHandler.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import Complaint from '../models/complaint.model.js';
 import { ApiError } from '../utils/ApiError.js';
