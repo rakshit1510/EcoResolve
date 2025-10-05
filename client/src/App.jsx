@@ -34,6 +34,13 @@ function App() {
         {/* Staff Routes */}
         <Route element={<ProtectedRoute allowedRoles={["Staff"]} />}>
           <Route path="/staff" element={<StaffDashboard />} />
+          <Route path="/staff/resources" element={<div>Resources Management - Coming Soon</div>} />
+          <Route path="/staff/workers" element={<div>Workers Management - Coming Soon</div>} />
+          <Route path="/staff/assignments" element={<div>Task Assignment - Coming Soon</div>} />
+          <Route path="/staff/city-map" element={<div>City Complaint Map - Coming Soon</div>} />
+          <Route path="/staff/reviews" element={<div>Complaint Reviews - Coming Soon</div>} />
+          <Route path="/staff/complaints" element={<div>Complaint Management - Coming Soon</div>} />
+          <Route path="/staff/profile" element={<div>Staff Profile - Coming Soon</div>} />
         </Route>
 
         {/* Admin Routes */}
