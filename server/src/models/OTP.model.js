@@ -22,22 +22,19 @@ async function sendVerificationEmail(email, otp) {
     try {
         const mailResponse = await mailSender(
             email,
-            'Verification Email from EcoResolve',
-`
-<div style="font-family: sans-serif; color: #333;">
-    <h2>Welcome to <span style="color:#10b981;">EcoResolve</span> 👋</h2>
-    <p>Hello ${name},</p>
-    <p>Thank you for joining EcoResolve — your platform to report community issues and get them resolved by local authorities.</p>
-    <p>Use the OTP below to verify your email address and start reporting problems in your area:</p>
-    <div style="padding: 10px 20px; background-color: #d1fae5; border-radius: 8px; width: fit-content; margin: 15px 0;">
-        <h1 style="letter-spacing: 2px; color: #065f46;">${otp}</h1>
-    </div>
-    <p>This OTP is valid for only <strong>3 minutes</strong>. Do not share it with anyone.</p>
-    <p>Let’s make our community cleaner and safer! 🌱</p>
-    <p><em>- EcoResolve Team</em></p>
-</div>
-`
-
+            'Verification Email from LearnSpark',
+            `
+            <div style="font-family: sans-serif; color: #333;">
+                <h2>Welcome to <span style="color:#6366f1;">LearnSpark</span> 👋</h2>
+                <p>Thank you for signing up. Please use the OTP below to verify your email address:</p>
+                <div style="padding: 10px 20px; background-color: #f0f0f0; border-radius: 8px; width: fit-content;">
+                    <h1 style="letter-spacing: 2px; color: #4f46e5;">${otp}</h1>
+                </div>
+                <p>This OTP is valid for only <strong>10 minutes</strong>. Do not share it with anyone.</p>
+                <p>Happy Learning! 🚀</p>
+                <p><em>- LearnSpark Team</em></p>
+            </div>
+            `
         );
         console.log('Email sent successfully to - ', email);
     } catch (error) {

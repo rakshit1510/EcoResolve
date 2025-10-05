@@ -89,7 +89,7 @@ export const createSuperAdmin = asyncHandler(async (req, res) => {
         }
         
         // Check if any admin already exists
-        const existingAdmin = await User.findOne({ accountType: "Admin" });
+        const existingAdmin = await User.findOne({ accountType: "SuperAdmin" });
         if (existingAdmin) {
             throw new ApiError(403, "Super Admin already exists. Use regular signup for additional admins.");
         }
@@ -112,7 +112,7 @@ export const createSuperAdmin = asyncHandler(async (req, res) => {
             email: email.toLowerCase(),
             password,
             contactNumber,
-            accountType: "Admin",
+            accountType: "SuperAdmin",
             additionalDetails: profileDetails._id,
             approved: true, // Super admin is auto-approved
         });
@@ -439,3 +439,47 @@ export const approveAccount = asyncHandler(async (req, res) => {
         throw new ApiError(500,"Internal ServerError while appoving account");
     }
 });
+
+export const approveAdminAccount = asyncHandler(async (req, res) => {
+    try {
+        const adminId=req.user;
+        const {email}=req.body;
+        if(!adminId){
+            throw new ApiError(400,"Admin not found");
+        }
+        if(!email){
+            throw new ApiError(400,"Email is required to approve account");
+        }
+        const superadmin=await User.findById(adminId._id);
+        if(!superadmin || superadmin.accountType !== "SuperAdmin" || !superadmin.approved){
+            throw new ApiError(403,"You are not authorized to approve accounts");
+        }
+        const _user=await User.findOne({email:email.toLowerCase()});
+        if(!_user){
+            throw new ApiError(404,"User not found");
+        }
+        if(_user.approved || _user.accountType === "Citizen" || _user.accountType === "Staff"){
+            throw new ApiError(400,"USer account is already approved");
+        }
+        _user.approved=true;
+        const appro=await _user.save({validateBeforeSave:false});
+        if(!appro){
+            throw new ApiError(500,"somthing wnetys wrong while appriovin the account");
+        }
+        const new_user=await User.findById(_user._id).select("-password -refreshToken");
+        if(!new_user){
+            throw new ApiError(500,"Internal ServerError while appoving account");
+        }
+        if(!new_user.approved){
+            throw new ApiError(500,"Internal ServerError while appoving account");
+        }
+        if(new_user.approved){
+            await mailSender(new_user.email,"Account Approved", accountApprovedTemplate(new_user.firstName, new_user.email));
+        }
+        return res.status(200).json(new ApiResponse(200,new_user,"Account approved successfully"));
+
+    } catch (error) {
+        throw new ApiError(500,"Internal erver error while approving the admin account");
+    }
+});
+
