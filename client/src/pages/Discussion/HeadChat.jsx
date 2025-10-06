@@ -2,8 +2,10 @@
 
 import { useMemo } from "react"
 import { useParams, Link } from "react-router-dom"
-import ChatWindow from "@/components/ChatWindow.jsx"
-import { departments } from "@/data/departments.js"
+// import ChatWindow from "../components/ChatWindow.jsx"
+// import { departments } from "../data/departments.js"
+import ChatWindow from "../../components/ChatWindow"
+import { departments } from "../../data/departments"
 
 export default function HeadChat() {
   const { dept, head } = useParams()
