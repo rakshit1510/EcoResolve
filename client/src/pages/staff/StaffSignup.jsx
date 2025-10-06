@@ -11,8 +11,17 @@ export default function StaffSignup() {
         password: "",
         confirmPassword: "",
         contactNumber: "",
+        department: "",
         otp: ""
     });
+
+    const departments = [
+        "Public Works Department (PWD)",
+        "Sanitation Department", 
+        "Water Supply Department",
+        "Electricity Department",
+        "Parks & Environment Department"
+    ];
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -154,6 +163,18 @@ export default function StaffSignup() {
                         onChange={handleChange}
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400"
                     />
+                    <select
+                        name="department"
+                        value={formData.department}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400"
+                    >
+                        <option value="">Select Department *</option>
+                        {departments.map((dept, index) => (
+                            <option key={index} value={dept}>{dept}</option>
+                        ))}
+                    </select>
 
                     <div className="flex gap-2">
                         <input

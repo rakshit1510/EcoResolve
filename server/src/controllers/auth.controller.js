@@ -183,6 +183,7 @@ export const Signup = asyncHandler(async (req, res) => {
             password,
             contactNumber,
             accountType,
+            department,
             additionalDetails: profileDetails._id,
             approved: approved,
             image: image ? image.url : undefined,

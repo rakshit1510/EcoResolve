@@ -15,7 +15,7 @@ export default function StaffVerification() {
     const fetchPendingStaff = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await axios.get("http://localhost:8000/api/admin/pending-staff", {
+            const res = await axios.get("http://localhost:8000/api/auth/unapproved-staff", {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -30,13 +30,20 @@ export default function StaffVerification() {
     const handleApproval = async (staffId, action) => {
         try {
             const token = localStorage.getItem('accessToken');
-            await axios.patch(`http://localhost:8000/api/admin/staff-approval/${staffId}`, 
-                { approved: action === 'approve' },
-                {
-                    headers: { "Authorization": `Bearer ${token}` },
-                    withCredentials: true
-                }
-            );
+            if (action === 'approve') {
+                await axios.post("http://localhost:8000/api/auth/approve-account", 
+                    { email: pendingStaff.find(staff => staff._id === staffId)?.email },
+                    {
+                        headers: { "Authorization": `Bearer ${token}` },
+                        withCredentials: true
+                    }
+                );
+            } else {
+                
+                setPendingStaff(prev => prev.filter(staff => staff._id !== staffId));
+                setMessage('Staff account rejected');
+                return;
+            }
             
             setMessage(`Staff ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
             fetchPendingStaff(); // Refresh the list

@@ -26,19 +26,22 @@ const userSchema = new mongoose.Schema(
     },
     accountType: {
       type: String,
-      enum: ["Citizen", "Staff", "Admin","SuperAdmin"],
+      enum: ["Citizen", "Staff", "Admin", "SuperAdmin"],
       required: true,
     },
     department: {
       type: String,
       enum: [
-      'Public Works Department (PWD)',
-      'Sanitation Department',
-      'Water Supply Department', 
-      'Electricity Department',
-      'Parks & Environment Department'
-    ],
-      default: null,},
+        "Public Works Department (PWD)",
+        "Sanitation Department",
+        "Water Supply Department",
+        "Electricity Department",
+        "Parks & Environment Department",
+      ],
+      required: function () {
+        return this.accountType !== "Citizen";
+      },
+    },
     additionalDetails: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profile",
@@ -47,14 +50,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    active:{
+    active: {
       type: Boolean,
       default: true,
     },
     image: {
       type: String,
       default: null,
-    }
+    },
   },
   { timestamps: true }
 );
