@@ -18,6 +18,7 @@ const complaintSchema = new mongoose.Schema({
   location: { type: String, required: true },
   imageUrl: { type: String , required: true},
   description: { type: String , required: true },
+  resolvedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
