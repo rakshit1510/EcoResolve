@@ -9,6 +9,11 @@ import ComplaintStatus from "./pages/citizen/Complaints/ComplaintStatus.jsx";
 import ProfileOptions from "./pages/citizen/ProfileOptions.jsx";
 import Feedback from "./pages/citizen/Feedback.jsx";
 import StaffVerification from "./pages/admin/StaffVerification.jsx";
+import ResourceManagement from "./pages/staff/Resource Management/ResourceManagement.jsx";
+import WorkersManagement from "./pages/staff/Workers Management/WorkersManagement.jsx";
+import TaskAssignment from "./pages/staff/Task Assignment/TaskAssignment.jsx";
+import ComplaintManagement from "./pages/staff/Complaint Management/ComplaintManagement.jsx";
+import ComplaintReview from "./pages/staff/Complaint Review/ComplaintReview.jsx";
 import StaffDashboard from "./pages/staff/Dashboard.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -34,12 +39,12 @@ function App() {
         {/* Staff Routes */}
         <Route element={<ProtectedRoute allowedRoles={["Staff"]} />}>
           <Route path="/staff" element={<StaffDashboard />} />
-          <Route path="/staff/resources" element={<div>Resources Management - Coming Soon</div>} />
-          <Route path="/staff/workers" element={<div>Workers Management - Coming Soon</div>} />
-          <Route path="/staff/assignments" element={<div>Task Assignment - Coming Soon</div>} />
+          <Route path="/staff/resources" element={<ResourceManagement />} />
+          <Route path="/staff/workers" element={<WorkersManagement />} />
+          <Route path="/staff/assignments" element={<TaskAssignment />} />
           <Route path="/staff/city-map" element={<div>City Complaint Map - Coming Soon</div>} />
-          <Route path="/staff/reviews" element={<div>Complaint Reviews - Coming Soon</div>} />
-          <Route path="/staff/complaints" element={<div>Complaint Management - Coming Soon</div>} />
+          <Route path="/staff/reviews" element={<ComplaintReview />} />
+          <Route path="/staff/complaints" element={<ComplaintManagement />} />
           <Route path="/staff/profile" element={<div>Staff Profile - Coming Soon</div>} />
         </Route>
 
