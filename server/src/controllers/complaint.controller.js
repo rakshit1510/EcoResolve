@@ -4,6 +4,8 @@ import {ApiResponse} from '../utils/ApiResponse.js';
 import Complaint from '../models/complaint.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import  User from '../models/user.model.js';
+import mailSender from "../utils/mailSender.js";
+import statusUpdateTemplate from '../email/templates/statusUpdateTemplate.js';
 import { uploadOnCloudinary } from '../utils/Cloudinary.js';
 
 const createComplaint= asyncHandler(async (req,res)=>{
@@ -65,8 +67,11 @@ const changeProgressStatus= asyncHandler(async (req,res)=>{
         if(!['pending','open', 'in-progress', 'resolved'].includes(status)){
             throw new ApiError(400, "Invalid status");
         }
+        const {email,firstName}= await User.findById(complaint.userId);
+        if(!email) throw new ApiError(404, "User email not found");
         complaint.status=status;
         await complaint.save();
+        await mailSender(email, 'Your Complaint status has been updated', statusUpdateTemplate(firstName,complaint._id,complaint.status));
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint status updated successfully"));
     } catch (error) {
         throw new ApiError(error?.code || 500, error?.message || "Something went wrong while changing the progress status of the complaint");
@@ -171,6 +176,7 @@ const getComplaintsByStatus= asyncHandler(async(req,res)=>{
         throw new ApiError(500,"something wents wrong while fetching complaints by status");
     }
 });
+
 const getComplaintsByfilter=asyncHandler(async(req,res)=>{
     try {
         const user=req.user._id ? await User.findById(req.user._id) : null;
