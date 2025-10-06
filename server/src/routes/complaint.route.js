@@ -9,7 +9,8 @@ import {
   updateComplaint,
   getComplaintsByDepartment,
   getComplaintsByStatus,
-  getComplaintsByfilter
+  getComplaintsByfilter,
+  getresolvedComplaints
 } from "../controllers/complaint.controller.js";
 import { verifyJWT, isCitizen, isStaff } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -67,5 +68,7 @@ router
 router
   .route("/complaints-by-filter")
   .post(verifyJWT, getComplaintsByfilter);
+
+  router.get("/resolved-complaints", verifyJWT, getresolvedComplaints);
 
 export default router;

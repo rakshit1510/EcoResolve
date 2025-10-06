@@ -71,6 +71,10 @@ const changeProgressStatus= asyncHandler(async (req,res)=>{
         if(!email) throw new ApiError(404, "User email not found");
         complaint.status=status;
         await complaint.save();
+        if(status==='resolved'){
+            complaint.resolvedAt=Date.now();
+            await complaint.save();
+        }
         await mailSender(email, 'Your Complaint status has been updated', statusUpdateTemplate(firstName,complaint._id,complaint.status));
         return res.status(200).json(new ApiResponse(200,complaint,"Complaint status updated successfully"));
     } catch (error) {
@@ -189,6 +193,46 @@ const getComplaintsByfilter=asyncHandler(async(req,res)=>{
         throw new ApiError(500,"somethind wents wrong while fetching complaints by filter")
     }
 });
+
+
+export const getresolvedComplaints = asyncHandler(async (req, res) => {
+  try {
+    // check user
+    const user = req.user._id ? await User.findById(req.user._id) : null;
+    if (!user) throw new ApiError(404, "User not found");
+
+    if (user.accountType !== 'Staff' && user.accountType !== 'Admin') {
+      throw new ApiError(403, "Only staff can view resolved complaints");
+    }
+
+    // get resolved complaints
+    const complaints = await Complaint.find({ status: 'resolved' })
+      .populate({ path: 'userId', select: 'firstName lastName email' });
+
+    if (!complaints || complaints.length === 0)
+      throw new ApiError(404, "No resolved complaints found");
+
+    // attach time taken inside complaint object
+    const complaintsWithTime = complaints.map(c => {
+      const complaintObj = c.toObject(); // convert Mongoose doc to plain object
+      if (complaintObj.resolvedAt && complaintObj.createdAt) {
+        const diffMs = complaintObj.resolvedAt - complaintObj.createdAt;
+        // convert to hours (or days)
+        complaintObj.timeTakenToResolveHours = Math.round(diffMs / (1000 * 60 * 60));
+      } else {
+        complaintObj.timeTakenToResolveHours = null;
+      }
+      return complaintObj;
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, complaintsWithTime, "Resolved complaints fetched successfully"));
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong while fetching resolved complaints");
+  }
+});
+
 
 export {createComplaint,
         getAllComplaints,
