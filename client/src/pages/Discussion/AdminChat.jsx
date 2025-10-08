@@ -1,9 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import DepartmentSidebar from "@/components/DepartmentSidebar.jsx"
-import ChatWindow from "@/components/ChatWindow.jsx"
-import { departments } from "@/data/departments.js"
+import DepartmentSidebar from "../../components/DepartmentSidebar.jsx"
+import ChatWindow from "../../components/ChatWindow.jsx"
+import { departments } from "../../data/departments.js"
 
 export default function AdminChat() {
   const [active, setActive] = useState(null)

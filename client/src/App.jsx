@@ -17,6 +17,8 @@ import ComplaintReview from "./pages/staff/Complaint Review/ComplaintReview.jsx"
 import StaffDashboard from "./pages/staff/Dashboard.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import AdminChat from "./pages/Discussion/AdminChat.jsx";
+import HeadChat from "./pages/Discussion/HeadChat.jsx";
 
 function App() {
   return (
@@ -54,7 +56,10 @@ function App() {
           <Route path="/admin/reports" element={<div>Report Generation - Coming Soon</div>} />
           <Route path="/admin/staff-verification" element={<StaffVerification />} />
           <Route path="/admin/unresolved-alerts" element={<div>Unresolved Alerts - Coming Soon</div>} />
+          
         </Route>
+        <Route path="/AdminChat" element={<AdminChat/>} />
+        <Route path="/head/:dept/:head" element={<HeadChat/>} />
 
         <Route path="*" element={<Landing />} />
       </Routes>

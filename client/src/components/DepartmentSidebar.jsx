@@ -1,6 +1,6 @@
 "use client"
 import { Link } from "react-router-dom"
-import { departments } from "@/data/departments.js"
+import { departments } from "../data/departments.js"
 
 export default function DepartmentSidebar({ active, onSelect, showHeadLinks = true }) {
   return (

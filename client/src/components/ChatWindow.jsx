@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { getSocket } from "@/utils/socket.js"
-import { roomIdFor } from "@/utils/rooms.js"
+import { getSocket } from "../utils/socket.js"
+import { roomIdFor } from "../utils/rooms.js"
+
 
 export default function ChatWindow({ room, identity, headerTitle }) {
   const [messages, setMessages] = useState([])
