@@ -3,6 +3,7 @@ import Worker from "../models/worker.model.js";
 import Resource from "../models/resource.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import Complaint from "../models/complaint.model.js";
 import { generateCredentials, generateOtp } from "../utils/generateCredentials.js";
 import mailSender from "../utils/mailSender.js";
@@ -364,3 +365,98 @@ export const resolveAssignment = async (req, res) => {
     );
   }
 };
+
+export const rejectFalseComplaint = async (req, res) => {
+  try {
+    const { complaintId } = req.params;
+
+    const complaint = await Complaint.findById(complaintId).populate("userId");
+    if (!complaint) throw new ApiError(404, "Complaint not found");
+
+    complaint.status = "rejected";
+    complaint.updatedAt = new Date();
+    await complaint.save();
+
+    const citizen = await User.findById(complaint.userId);
+    if (!citizen) throw new ApiError(404, "Citizen not found");
+
+    citizen.warnings = (citizen.warnings || 0) + 1;
+
+    let emailSubject = "";
+    let emailBody = "";
+
+    if (citizen.warnings < 3) {
+      emailSubject = `Warning ${citizen.warnings}/3 - False Complaint Notice`;
+      emailBody = `
+        <div style="font-family:sans-serif;color:#333;">
+          <h2>Dear ${citizen.firstName},</h2>
+          <p>Your recent complaint has been reviewed and marked as <b>false</b> by the department.</p>
+          <p>This is your <b>${citizen.warnings} of 3</b> warnings.</p>
+          <p>Please note that after <b>3 warnings</b>, your account will be temporarily frozen.</p>
+          <br/>
+          <p>Regards,<br/>EcoResolve Team</p>
+        </div>
+      `;
+    } else {
+      citizen.approved = false;
+      emailSubject = "Account Frozen - Multiple False Complaints";
+      emailBody = `
+        <div style="font-family:sans-serif;color:#333;">
+          <h2>Dear ${citizen.firstName},</h2>
+          <p>Your account has been <b>frozen</b> due to multiple false complaints filed through the EcoResolve system.</p>
+          <p>You have received <b>3 warnings</b>, which is the limit for fraudulent reports.</p>
+          <p>If you believe this action is incorrect, please contact the EcoResolve support team for further assistance.</p>
+          <br/>
+          <p>Regards,<br/>EcoResolve Team</p>
+        </div>
+      `;
+    }
+
+    await mailSender(citizen.email, emailSubject, emailBody);
+
+    await citizen.save();
+
+    return res.status(200).json(
+      new ApiResponse(200, { citizen, complaint }, 
+        `Complaint rejected. Warning ${citizen.warnings}/3 issued to ${citizen.firstName}`)
+    );
+
+  } catch (error) {
+    console.error("❌ Error in rejectFalseComplaint:", error);
+    throw new ApiError(
+      error?.status || 500,
+      error?.message || "Failed to reject complaint"
+    );
+  }
+};
+
+// Get Overdue Complaints (for assignments)
+export const getOverdueComplaints = asyncHandler(async (req, res) => {
+  try {
+    const user = req.user?._id ? await User.findById(req.user._id) : null;
+    if (!user) throw new ApiError(404, "User not found");
+
+    if (user.accountType !== "Staff" && user.accountType !== "Admin") {
+      throw new ApiError(403, "Only staff and admins can view overdue complaints");
+    }
+
+    const overdueComplaints = await Complaint.find({ overdue: true })
+      .populate({ path: "userId", select: "firstName lastName email" })
+      .select("department status location description overdue resolvedAt userId")
+      .sort({ updatedAt: -1 });
+
+    if (!overdueComplaints || overdueComplaints.length === 0) {
+      throw new ApiError(404, "No overdue complaints found");
+    }
+
+    return res.status(200).json(
+      new ApiResponse(200, overdueComplaints, "Overdue complaints fetched successfully")
+    );
+  } catch (error) {
+    console.error("❌ Error in getOverdueComplaints:", error);
+    throw new ApiError(
+      error?.status || 500,
+      error?.message || "Something went wrong while fetching overdue complaints"
+    );
+  }
+});

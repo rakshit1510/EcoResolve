@@ -22,7 +22,8 @@ const complaintSchema = new mongoose.Schema({
   escalatedAt: { type: Date, default: null },
   resolvedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  overdue: { type: Boolean, default: false },
 }, { timestamps: true });
 const Complaint = mongoose.model('Complaint', complaintSchema);
 
