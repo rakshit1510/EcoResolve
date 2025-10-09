@@ -3,13 +3,9 @@ import Worker from "../models/worker.model.js";
 import Resource from "../models/resource.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
-import generateCredentials from "../utils/nerateCredentials.js";
 import Complaint from "../models/complaint.model.js";
 import { generateCredentials, generateOtp } from "../utils/generateCredentials.js";
-import { sendMail } from "../utils/mailSender.js"; // your mail sending function
-import Complaint from "../models/complaint.model.js";
-import { generateCredentials, generateOtp } from "../utils/generateCredentials.js";
-import { sendMail } from "../utils/mailSender.js";
+import mailSender from "../utils/mailSender.js";
 
 
 // ✅ Create new Assignment
@@ -78,7 +74,7 @@ export const createAssignment = async (req, res) => {
 
     // Send credentials to workers
     for (const worker of availableWorkers) {
-      await sendMail(
+      await mailSender(
         worker.email,
         "New Assignment Credentials",
         `
@@ -91,7 +87,7 @@ export const createAssignment = async (req, res) => {
     }
 
     // Send OTP to citizen
-    await sendMail(
+    await mailSender(
       citizenEmail,
       "Complaint Verification OTP",
       `

@@ -9,6 +9,7 @@ import AuthRoutes from './routes/auth.route.js'
 import complaintRoutes from './routes/complaint.route.js'
 import reviewRoutes from './routes/review.route.js'
 import reportRoutes from "./routes/report.route.js";
+import escalationRoutes from "./routes/escalation.route.js";
 
 const app = express()
 
@@ -31,6 +32,7 @@ app.use("/api/auth", AuthRoutes)
 app.use("/api/complaints", complaintRoutes)
 app.use("/api/reviews", reviewRoutes)
 app.use("/api/reports", reportRoutes);
+app.use("/api/escalation", escalationRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;

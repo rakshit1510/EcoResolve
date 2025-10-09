@@ -29,6 +29,12 @@ const SuperAdminDashboard = () => {
       icon: "📢",
       path: "/superadmin/announcements"
     },
+    {
+      title: "Escalated Complaints",
+      description: "Handle complaints escalated by citizens or system",
+      icon: "🚨",
+      path: "/superadmin/escalated-complaints"
+    }
   ];
 
   return (

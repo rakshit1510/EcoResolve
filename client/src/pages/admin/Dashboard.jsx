@@ -28,6 +28,12 @@ export default function AdminDashboard() {
             description: "View complaints that have been pending for too long",
             icon: "⚠️",
             path: "/admin/unresolved-alerts"
+        },
+        {
+            title: "Escalated Complaints",
+            description: "Handle complaints escalated by citizens or system",
+            icon: "🚨",
+            path: "/admin/escalated-complaints"
         }
     ];
 

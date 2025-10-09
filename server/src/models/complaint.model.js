@@ -18,6 +18,8 @@ const complaintSchema = new mongoose.Schema({
   location: { type: String, required: true },
   imageUrl: { type: String , required: true},
   description: { type: String , required: true },
+  escalationLevel: { type: String, enum: ['staff', 'admin', 'superadmin'], default: 'staff' },
+  escalatedAt: { type: Date, default: null },
   resolvedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
