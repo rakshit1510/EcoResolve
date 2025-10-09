@@ -13,13 +13,14 @@ export const AuthProvider = ({ children }) => {
             if (accountType === "Citizen") endpoint = "http://localhost:8000/api/auth/login/citizen";
             else if (accountType === "Admin") endpoint = "http://localhost:8000/api/auth/login/admin";
             else if (accountType === "Staff") endpoint = "http://localhost:8000/api/auth/login/staff";
+            else if (accountType === "SuperAdmin") endpoint = "http://localhost:8000/api/auth/login/superadmin";
             
             const res = await axios.post(endpoint, { email, password });
             const { accessToken } = res.data.data;
             
-            // Store token in localStorage
+            // Store token and account type in localStorage
             localStorage.setItem('accessToken', accessToken);
-            // console.log('Token stored:', accessToken);
+            localStorage.setItem('accountType', accountType);
             
             setUser({ email, accountType, accessToken });
             return { user: { email, accountType } };
@@ -30,7 +31,8 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await axios.post("/api/users/logout", {}, { withCredentials: true });
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('accountType');
             setUser(null);
         } catch (err) {
             console.error("Logout failed", err);
@@ -39,8 +41,14 @@ export const AuthProvider = ({ children }) => {
 
     const fetchUser = async () => {
         try {
-            const res = await axios.get("/api/users/me", { withCredentials: true });
-            setUser(res.data.user);
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                // If token exists, set user as authenticated
+                // You can decode the token or make an API call to verify
+                setUser({ accessToken: token, accountType: localStorage.getItem('accountType') || 'Citizen' });
+            } else {
+                setUser(null);
+            }
         } catch {
             setUser(null);
         } finally {

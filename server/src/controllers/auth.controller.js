@@ -372,6 +372,105 @@ export const loginStaff =  asyncHandler(async (req, res) => {
     }
 });
 
+// SuperAdmin Login
+export const loginSuperAdmin = asyncHandler(async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            throw new ApiError(400, "Email and password are required");
+        }
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            throw new ApiError(404, "SuperAdmin not found");
+        }
+        const isPasswordCorrect = await user.isPasswordCorrect(password);
+        if (!isPasswordCorrect) {
+            throw new ApiError(401, "Invalid credentials");
+        }
+        if(user.accountType !== "SuperAdmin"){
+            throw new ApiError(403, "You are not authorized to login as SuperAdmin");
+        }
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+        if (!loggedInUser) {
+            throw new ApiError(500, "Something went wrong while fetching user details");
+        }
+
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        };
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+            new ApiResponse(
+                200,
+                {
+                user: loggedInUser,
+                accessToken,
+                refreshToken
+                },
+                "SuperAdmin logged in Successfully"
+            )
+            );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while SuperAdmin logging in");
+    }
+});
+
+// Admin Signup (SuperAdmin creates Admin)
+export const adminSignup = asyncHandler(async (req, res) => {
+    try {
+        const { firstName, lastName, email, password, department } = req.body;
+        const superAdminId = req.user;
+        
+        if (!firstName || !lastName || !email || !password || !department) {
+            throw new ApiError(400, "All fields are required");
+        }
+        
+        const superAdmin = await User.findById(superAdminId._id);
+        if (!superAdmin || superAdmin.accountType !== "SuperAdmin" || !superAdmin.approved) {
+            throw new ApiError(403, "You are not authorized to create admin accounts");
+        }
+        
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            throw new ApiError(400, "User already exists with this email");
+        }
+        
+        const profileDetails = await Profile.create({
+            gender: null,
+            dateOfBirth: null,
+            about: null,
+            contactNumber: null,
+        });
+        
+        const admin = await User.create({
+            firstName,
+            lastName,
+            email: email.toLowerCase(),
+            password,
+            accountType: "Admin",
+            department,
+            additionalDetails: profileDetails._id,
+            approved: true,
+        });
+        
+        const createdAdmin = await User.findById(admin._id).select("-password -refreshToken");
+        
+        return res.status(201).json(
+            new ApiResponse(200, createdAdmin, "Admin account created successfully!")
+        );
+    } catch (error) {
+        throw new ApiError(500, error.message || "Something went wrong while creating admin account");
+    }
+});
+
 export const logout = asyncHandler(async (req, res) => {
     try {
         const userId = req.user;

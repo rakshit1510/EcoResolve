@@ -19,6 +19,7 @@ export default function Login() {
             if (accountType === "Citizen") navigate("/citizen");
             else if (accountType === "Staff") navigate("/staff");
             else if (accountType === "Admin") navigate("/admin");
+            else if (accountType === "SuperAdmin") navigate("/superadmin");
         } catch (err) {
             setError(err.message || "Login failed");
         }
@@ -42,6 +43,7 @@ export default function Login() {
                     <option value="Citizen">Citizen</option>
                     <option value="Staff">Staff</option>
                     <option value="Admin">Admin</option>
+                    <option value="SuperAdmin">SuperAdmin</option>
                 </select>
 
                 <input

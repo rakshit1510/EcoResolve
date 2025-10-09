@@ -7,9 +7,11 @@ import {
     sendOTP,
     Signup,
     createSuperAdmin,
+    adminSignup,
     loginCitizen,
     loginAdmin,
     loginStaff,
+    loginSuperAdmin,
     approveAccount,
     approveAdminAccount,
     fetchUnapprovedAdmin,
@@ -20,11 +22,13 @@ import {
 const router = express.Router();
 
 router.post("/create-super-admin", createSuperAdmin);
+router.post("/admin-signup", verifyJWT, adminSignup);
 router.post("/signup",upload.single('image'),  Signup);
 router.route('/sendotp').post(upload.none(), sendOTP);
 router.post("/login/citizen", loginCitizen);
 router.post("/login/admin", loginAdmin);
 router.post("/login/staff", loginStaff);
+router.post("/login/superadmin", loginSuperAdmin);
 router.post("/logout", verifyJWT, logout);
 router.post("/approve-account", verifyJWT, approveAccount);
 router.get("/unapproved-admins", verifyJWT, fetchUnapprovedAdmin);

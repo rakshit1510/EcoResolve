@@ -8,7 +8,7 @@ import assignmentRoutes from './routes/assignment.route.js'
 import AuthRoutes from './routes/auth.route.js'
 import complaintRoutes from './routes/complaint.route.js'
 import reviewRoutes from './routes/review.route.js'
-import reportRoutes from "./routes/report.routes.js";
+import reportRoutes from "./routes/report.route.js";
 
 const app = express()
 
