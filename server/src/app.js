@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser' 
+import "./utils/overdueChecker.js";
 
 import resourcesRoutes from './routes/resource.route.js'
 import workerRoutes from './routes/worker.route.js'

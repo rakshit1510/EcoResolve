@@ -20,7 +20,8 @@ const complaintSchema = new mongoose.Schema({
   description: { type: String , required: true },
   resolvedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  overdue: { type: Boolean, default: false },
 }, { timestamps: true });
 const Complaint = mongoose.model('Complaint', complaintSchema);
 
