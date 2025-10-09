@@ -1,5 +1,5 @@
 import Worker from "../models/worker.model.js";
-
+import Assignment from "../models/assignment.model.js";
 export const addWorker = async (req, res) => {
   try {
     const worker = new Worker(req.body);

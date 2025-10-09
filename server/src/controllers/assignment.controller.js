@@ -3,7 +3,16 @@ import Worker from "../models/worker.model.js";
 import Resource from "../models/resource.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
+import generateCredentials from "../utils/nerateCredentials.js";
+import Complaint from "../models/complaint.model.js";
+import { generateCredentials, generateOtp } from "../utils/generateCredentials.js";
+import { sendMail } from "../utils/mailSender.js"; // your mail sending function
+import Complaint from "../models/complaint.model.js";
+import { generateCredentials, generateOtp } from "../utils/generateCredentials.js";
+import { sendMail } from "../utils/mailSender.js";
 
+
+// ✅ Create new Assignment
 export const createAssignment = async (req, res) => {
   try {
     const {
@@ -14,43 +23,92 @@ export const createAssignment = async (req, res) => {
       startDate,
       endDate,
       description,
+      compliantId,
     } = req.body;
+
     if (!workers?.length || !resources?.length) {
-      throw new ApiError(
-        400,
-        "At least one worker and one resource are required"
-      );
+      throw new ApiError(400, "At least one worker and one resource are required");
     }
-    const existingWorkers = await Worker.find({
+
+    // Fetch complaint and citizen email
+    const complaint = await Complaint.findById(compliantId).populate("userId");
+    if (!complaint) throw new ApiError(404, "Complaint not found");
+    const citizenEmail = complaint.userId?.email;
+    if (!citizenEmail) throw new ApiError(400, "Citizen email not found");
+
+    // Validate workers & resources
+    const availableWorkers = await Worker.find({
       _id: { $in: workers },
       status: "Available",
     });
-    const existingResources = await Resource.find({
+
+    const availableResources = await Resource.find({
       _id: { $in: resources },
       status: "Available",
     });
-    if (existingWorkers.length !== workers.length)
+
+    if (availableWorkers.length !== workers.length)
       throw new ApiError(400, "Some workers are invalid or not available");
-    if (existingResources.length !== resources.length)
+    if (availableResources.length !== resources.length)
       throw new ApiError(400, "Some resources are invalid or not available");
+
+    // Generate credentials & OTP
+    const { loginId, loginPassword } = generateCredentials();
+    const { otp, otpExpiry } = generateOtp();
+
+    // Create assignment
     const assignment = await Assignment.create({
       workers,
       resources,
+      compliantId,
       department,
       location,
       startDate,
       endDate,
       description,
+      loginId,
+      loginPassword,
+      otp,
+      otpExpiry,
     });
+
+    // Update statuses
     await Worker.updateMany({ _id: { $in: workers } }, { status: "On-Duty" });
-    await Resource.updateMany(
-      { _id: { $in: resources } },
-      { status: "In Use" }
+    await Resource.updateMany({ _id: { $in: resources } }, { status: "In Use" });
+
+    // Send credentials to workers
+    for (const worker of availableWorkers) {
+      await sendMail(
+        worker.email,
+        "New Assignment Credentials",
+        `
+        <h2>New Assignment Assigned</h2>
+        <p><strong>Login ID:</strong> ${loginId}</p>
+        <p><strong>Password:</strong> ${loginPassword}</p>
+        <p>Please use these credentials to access your assignment panel.</p>
+        `
+      );
+    }
+
+    // Send OTP to citizen
+    await sendMail(
+      citizenEmail,
+      "Complaint Verification OTP",
+      `
+      <h2>OTP for Your Complaint</h2>
+      <p>Your OTP for verification is: <strong>${otp}</strong></p>
+      <p>This OTP is valid for 10 minutes.</p>
+      `
     );
+
     res
       .status(201)
       .json(
-        new ApiResponse(201, assignment, "Assignment created successfully")
+        new ApiResponse(
+          201,
+          assignment,
+          "Assignment created successfully. Credentials sent to workers and OTP sent to citizen."
+        )
       );
   } catch (error) {
     throw new ApiError(
@@ -60,20 +118,23 @@ export const createAssignment = async (req, res) => {
   }
 };
 
+
+// ✅ Get All Assignments (with filters)
 export const getAssignments = async (req, res) => {
   try {
     const filters = {};
     if (req.query.workerId) filters.workers = req.query.workerId;
     if (req.query.resourceId) filters.resources = req.query.resourceId;
     if (req.query.department) filters.department = req.query.department;
+
     const assignments = await Assignment.find(filters)
-      .populate("workers", "name department role status")
-      .populate("resources", "resourceName department category status");
+      .populate("workers", "name email department role status")
+      .populate("resources", "resourceName department category status")
+      .populate("compliantId", "location status description");
+
     res
       .status(200)
-      .json(
-        new ApiResponse(200, assignments, "Assignments fetched successfully")
-      );
+      .json(new ApiResponse(200, assignments, "Assignments fetched successfully"));
   } catch (error) {
     throw new ApiError(
       error?.status || 500,
@@ -82,17 +143,20 @@ export const getAssignments = async (req, res) => {
   }
 };
 
+
+// ✅ Get Single Assignment by ID
 export const getAssignmentById = async (req, res) => {
   try {
     const assignment = await Assignment.findById(req.params.id)
-      .populate("workers", "name department role status")
-      .populate("resources", "resourceName department category status");
+      .populate("workers", "name email department role status")
+      .populate("resources", "resourceName department category status")
+      .populate("compliantId", "location status description");
+
     if (!assignment) throw new ApiError(404, "Assignment not found");
+
     res
       .status(200)
-      .json(
-        new ApiResponse(200, assignment, "Assignment fetched successfully")
-      );
+      .json(new ApiResponse(200, assignment, "Assignment fetched successfully"));
   } catch (error) {
     throw new ApiError(
       error?.status || 500,
@@ -101,6 +165,8 @@ export const getAssignmentById = async (req, res) => {
   }
 };
 
+
+// ✅ Update Assignment
 export const updateAssignment = async (req, res) => {
   try {
     const {
@@ -112,8 +178,11 @@ export const updateAssignment = async (req, res) => {
       endDate,
       description,
     } = req.body;
+
     const assignment = await Assignment.findById(req.params.id);
     if (!assignment) throw new ApiError(404, "Assignment not found");
+
+    // Update fields
     if (workers) assignment.workers = workers;
     if (resources) assignment.resources = resources;
     if (department) assignment.department = department;
@@ -121,12 +190,12 @@ export const updateAssignment = async (req, res) => {
     if (startDate) assignment.startDate = startDate;
     if (endDate) assignment.endDate = endDate;
     if (description) assignment.description = description;
+
     await assignment.save();
+
     res
       .status(200)
-      .json(
-        new ApiResponse(200, assignment, "Assignment updated successfully")
-      );
+      .json(new ApiResponse(200, assignment, "Assignment updated successfully"));
   } catch (error) {
     throw new ApiError(
       error?.status || 500,
@@ -135,10 +204,13 @@ export const updateAssignment = async (req, res) => {
   }
 };
 
+
+// ✅ Delete Assignment
 export const deleteAssignment = async (req, res) => {
   try {
     const assignment = await Assignment.findById(req.params.id);
     if (!assignment) throw new ApiError(404, "Assignment not found");
+
     await Worker.updateMany(
       { _id: { $in: assignment.workers } },
       { status: "Available" }
@@ -147,7 +219,9 @@ export const deleteAssignment = async (req, res) => {
       { _id: { $in: assignment.resources } },
       { status: "Available" }
     );
-    await assignment.remove();
+
+    await assignment.deleteOne();
+
     res
       .status(200)
       .json(new ApiResponse(200, null, "Assignment deleted successfully"));
@@ -155,6 +229,142 @@ export const deleteAssignment = async (req, res) => {
     throw new ApiError(
       error?.status || 500,
       error?.message || "Failed to delete assignment"
+    );
+  }
+};
+
+export const assignmentLogin = async (req, res) => {
+  try {
+    const { loginId, loginPassword } = req.body;
+
+    if (!loginId || !loginPassword)
+      throw new ApiError(400, "Login ID and Password are required");
+
+    // Find assignment by loginId
+    const assignment = await Assignment.findOne({ loginId })
+      .populate("workers", "name email department role status")
+      .populate("resources", "resourceName department category status")
+      .populate("compliantId", "location description status");
+
+    if (!assignment) throw new ApiError(404, "Invalid login ID");
+
+    // If password is plain text
+    if (assignment.loginPassword !== loginPassword) {
+      throw new ApiError(401, "Incorrect password");
+    }
+
+    // ✅ If using hashed passwords (recommended)
+    /*
+    const isMatch = await bcrypt.compare(loginPassword, assignment.loginPassword);
+    if (!isMatch) throw new ApiError(401, "Incorrect password");
+    */
+
+    // ✅ Check if assignment is still active
+    if (assignment.status === "Resolved")
+      throw new ApiError(400, "This assignment has already been resolved");
+
+    // Return assignment info (excluding sensitive fields)
+    const responseData = {
+      id: assignment._id,
+      department: assignment.department,
+      location: assignment.location,
+      workers: assignment.workers,
+      resources: assignment.resources,
+      startDate: assignment.startDate,
+      endDate: assignment.endDate,
+      description: assignment.description,
+      status: assignment.status,
+    };
+
+    res.status(200).json(
+      new ApiResponse(
+        200,
+        responseData,
+        "Worker logged in successfully using assignment credentials"
+      )
+    );
+  } catch (error) {
+    throw new ApiError(
+      error?.status || 500,
+      error?.message || "Assignment login failed"
+    );
+  }
+};
+
+export const resolveAssignment = async (req, res) => {
+  try {
+    const { assignmentId, otp } = req.body;
+
+    if (!assignmentId || !otp)
+      throw new ApiError(400, "Assignment ID and OTP are required");
+
+    // Find assignment
+    const assignment = await Assignment.findById(assignmentId).populate({
+      path: "compliantId",
+      populate: { path: "userId", select: "email name" },
+    });
+
+    if (!assignment) throw new ApiError(404, "Assignment not found");
+    if (assignment.status === "Resolved")
+      throw new ApiError(400, "This assignment is already resolved");
+
+    // Check OTP validity
+    if (assignment.otp !== otp)
+      throw new ApiError(401, "Invalid OTP");
+    if (assignment.otpExpiry < new Date())
+      throw new ApiError(400, "OTP has expired. Please request a new one.");
+
+    // Mark assignment & complaint as resolved
+    assignment.status = "Resolved";
+    assignment.otp = undefined;
+    assignment.otpExpiry = undefined;
+    assignment.loginId = undefined;
+    assignment.loginPassword = undefined;
+
+    await assignment.save();
+
+    // Update linked complaint
+    const complaint = await Complaint.findById(assignment.compliantId);
+    if (complaint) {
+      complaint.status = "resolved";
+      complaint.resolvedAt = new Date();
+      await complaint.save();
+    }
+
+    // Free up worker & resources
+    await Worker.updateMany(
+      { _id: { $in: assignment.workers } },
+      { status: "Available" }
+    );
+    await Resource.updateMany(
+      { _id: { $in: assignment.resources } },
+      { status: "Available" }
+    );
+
+    // Send mail to citizen
+    const citizenEmail = assignment.compliantId?.userId?.email;
+    if (citizenEmail) {
+      await sendMail(
+        citizenEmail,
+        "Complaint Resolved Successfully",
+        `
+        <h2>Good news!</h2>
+        <p>Your complaint has been resolved by our department team.</p>
+        <p><strong>Department:</strong> ${assignment.department}</p>
+        <p><strong>Location:</strong> ${assignment.location}</p>
+        <p>Thank you for helping us improve civic management in your area.</p>
+        <p>Best regards,<br/><strong>EcoResolve Team</strong></p>
+        `
+      );
+    }
+
+    res.status(200).json(
+      new ApiResponse(200, null, "Assignment resolved successfully. Citizen notified via email.")
+    );
+  } catch (error) {
+    throw new ApiError(
+      error?.status || 500,
+      error?.message || "Failed to resolve assignment"
     );
   }
 };
