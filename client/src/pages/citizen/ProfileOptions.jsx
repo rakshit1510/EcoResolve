@@ -7,11 +7,15 @@ export default function ProfileOptions() {
     const [userProfile, setUserProfile] = useState({
         firstName: "",
         lastName: "",
+        email: "",
         contactNumber: "",
         gender: "",
         dateOfBirth: "",
-        about: ""
+        about: "",
+        image: ""
     });
+    const [selectedImageFile, setSelectedImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
     const [message, setMessage] = useState("");
@@ -25,7 +29,7 @@ export default function ProfileOptions() {
     const fetchUserProfile = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await axios.get("http://localhost:8000/api/user/profile", {
+            const res = await axios.get("/api/profile/me", {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -41,6 +45,20 @@ export default function ProfileOptions() {
         setUserProfile({ ...userProfile, [e.target.name]: e.target.value });
     };
 
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setSelectedImageFile(file);
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setImagePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         setUpdating(true);
@@ -48,11 +66,38 @@ export default function ProfileOptions() {
 
         try {
             const token = localStorage.getItem('accessToken');
-            await axios.patch("http://localhost:8000/api/user/profile", userProfile, {
+            
+            // Upload image first if selected
+            if (selectedImageFile) {
+                const formData = new FormData();
+                formData.append('image', selectedImageFile);
+                
+                await axios.put('/api/profile/update-image', formData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
+            
+            // Update profile data
+            const { image, ...profileData } = userProfile;
+            await axios.put("/api/profile/update", profileData, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
+            
             setMessage("Profile updated successfully!");
+            setSelectedImageFile(null);
+            setImagePreview("");
+            
+            // Scroll to top immediately
+            window.scrollTo(0, 0);
+            
+            // Reload page after 1.5 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         } catch (error) {
             setMessage(error.response?.data?.message || "Failed to update profile");
         } finally {
@@ -64,7 +109,7 @@ export default function ProfileOptions() {
         setDeleteLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            await axios.delete("http://localhost:8000/api/user/account", {
+            await axios.delete("/api/profile/delete", {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -107,6 +152,28 @@ export default function ProfileOptions() {
                     )}
 
                     <form onSubmit={handleUpdateProfile} className="space-y-6">
+                        {/* Profile Image */}
+                        <div className="flex items-center space-x-6">
+                            <div className="shrink-0">
+                                <img
+                                    className="h-16 w-16 object-cover rounded-full"
+                                    src={imagePreview || userProfile.image || "https://via.placeholder.com/64"}
+                                    alt="Profile"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Profile Picture
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageSelect}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -134,6 +201,20 @@ export default function ProfileOptions() {
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={userProfile.email}
+                                readOnly
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                         </div>
 
                         <div>

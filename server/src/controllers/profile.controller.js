@@ -127,18 +127,27 @@ export const updateUserProfileImage = asyncHandler(async (req, res) => {
 
 export const getUserById= asyncHandler(async(req,res)=>{
   try {
-    const user=req.user._id ? await User.findById(req.user._id) : null;
-    if(!user){
-      throw new ApiError(400,"user not found");
-    }
-    const totalUser= await User.findById(req.user._id).populate("additionalDetails");
+    const totalUser= await User.findById(req.user._id).populate("additionalDetails").select("-password");
     if(!totalUser){
       throw new ApiError(400,"user not found")
     }
+    
+    // Flatten the response to include profile fields at root level
+    const userResponse = {
+      firstName: totalUser.firstName,
+      lastName: totalUser.lastName,
+      email: totalUser.email,
+      image: totalUser.image,
+      contactNumber: totalUser.additionalDetails?.contactNumber || "",
+      gender: totalUser.additionalDetails?.gender || "",
+      dateOfBirth: totalUser.additionalDetails?.dateOfBirth || "",
+      about: totalUser.additionalDetails?.about || ""
+    };
+    
     return res.status(200).json(
-      new ApiResponse(200,user,"user details fetched successfully")
+      new ApiResponse(200, userResponse, "user details fetched successfully")
     )
   } catch (error) {
-      throw new ApiError(500,"Internal server error while fretching user")
+      throw new ApiError(500,"Internal server error while fetching user")
   }
 })

@@ -276,7 +276,7 @@ export const loginAdmin =  asyncHandler(async (req, res) => {
             throw new ApiError(401, "Invalid credentials");
         }
         if(user.accountType !== "Admin"){
-            throw new ApiError(403, "You are not authorized to login as Citizen");
+            throw new ApiError(403, "You are not authorized to login as Admin");
         }
         if(!user.approved){
             throw new ApiError(403, "Your account is not approved yet. Please contact super admin.");

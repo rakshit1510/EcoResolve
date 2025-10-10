@@ -38,7 +38,7 @@ export default function Login() {
                 <select
                     value={accountType}
                     onChange={(e) => setAccountType(e.target.value)}
-                    className="w-full p-3 mb-4 border rounded"
+                    className="w-full p-3 mb-4 border rounded cursor-pointer"
                 >
                     <option value="Citizen">Citizen</option>
                     <option value="Staff">Staff</option>
@@ -66,7 +66,7 @@ export default function Login() {
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition"
+                    className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition cursor-pointer"
                 >
                     Login
                 </button>
