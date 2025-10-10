@@ -8,7 +8,7 @@ import {
   deleteAnnouncement,
   getAnnouncementsByFilters,
   getAnnouncementByQuery,
-} from "../controllers/announcement.controller.js";
+} from "../controllers/announcements.controller.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });

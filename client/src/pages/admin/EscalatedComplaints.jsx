@@ -32,23 +32,6 @@ const EscalatedComplaints = () => {
     }
   };
 
-  const handleResolve = async (complaintId) => {
-    if (!confirm("Are you sure you want to mark this complaint as resolved?")) return;
-    
-    try {
-      await axios.patch(`/api/escalation/${complaintId}/resolve`, {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      alert("Complaint resolved successfully!");
-      fetchEscalatedComplaints();
-    } catch (error) {
-      console.error("Error resolving complaint:", error);
-      alert("Error resolving complaint");
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -112,17 +95,7 @@ const EscalatedComplaints = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleResolve(complaint._id)}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-                  >
-                    Mark Resolved
-                  </button>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                    View Details
-                  </button>
-                </div>
+
               </div>
             ))}
           </div>

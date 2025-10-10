@@ -18,10 +18,10 @@ const SuperAdminDashboard = () => {
       path: "/superadmin/approvals"
     },
     {
-      title: "System Analytics",
-      description: "View comprehensive system statistics and reports",
+      title: "Report Generation",
+      description: "Generate comprehensive reports including department analytics",
       icon: "📊",
-      path: "/superadmin/analytics"
+      path: "/superadmin/reports"
     },
     {
       title: "Announcements",

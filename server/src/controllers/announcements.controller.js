@@ -1,6 +1,6 @@
-import Announcement from "../models/announcement.model.js";
+import Announcement from "../models/announcements.model.js";
 import User from "../models/user.model.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import {asyncHandler} from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
@@ -163,18 +163,16 @@ export const getAnnouncementsByFilters = asyncHandler(async (req, res) => {
     if (audience && audience !== "All") filter.audience = audience;
     if (typeof isActive !== "undefined") filter.isActive = isActive === "true";
 
-    // Only show non-expired announcements
-    filter.expiresAt = { $gte: new Date() };
-
+    // For SuperAdmin management, show all announcements (including expired)
     const announcements = await Announcement.find(filter)
       .populate("createdBy", "firstName lastName email accountType")
       .sort({ createdAt: -1 });
 
     return res
       .status(200)
-      .json(new ApiResponse(200, announcements, "Filtered announcements fetched successfully"));
+      .json(new ApiResponse(200, announcements, "Announcements fetched successfully"));
   } catch (error) {
-    throw new ApiError(500, error.message || "Error fetching announcements by filters");
+    throw new ApiError(500, error.message || "Error fetching announcements");
   }
 });
 
