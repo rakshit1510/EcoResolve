@@ -53,7 +53,7 @@ const AdminApprovals = () => {
             <h1 className="text-2xl font-bold text-gray-900">Admin Approvals</h1>
             <button
               onClick={() => navigate("/superadmin")}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition cursor-pointer"
             >
               Back to Dashboard
             </button>
@@ -126,7 +126,7 @@ const AdminApprovals = () => {
                         <button
                           onClick={() => approveAdmin(admin.email)}
                           disabled={loading}
-                          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           {loading ? "Approving..." : "Approve"}
                         </button>

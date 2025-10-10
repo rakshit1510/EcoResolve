@@ -24,12 +24,6 @@ export default function AdminDashboard() {
             path: "/admin/staff-verification"
         },
         {
-            title: "Unresolved Issues Alert",
-            description: "View complaints that have been pending for too long",
-            icon: "⚠️",
-            path: "/admin/unresolved-alerts"
-        },
-        {
             title: "Escalated Complaints",
             description: "Handle complaints escalated by citizens or system",
             icon: "🚨",
