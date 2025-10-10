@@ -12,6 +12,7 @@ import reviewRoutes from './routes/review.route.js'
 import reportRoutes from "./routes/report.route.js";
 import escalationRoutes from "./routes/escalation.route.js";
 import profileRoutes from "./routes/profile.route.js";
+import announcementRoutes from "./routes/announcementes.route.js";
 
 const app = express()
 
@@ -36,6 +37,7 @@ app.use("/api/reviews", reviewRoutes)
 app.use("/api/reports", reportRoutes);
 app.use("/api/escalation", escalationRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/announcements", announcementRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {

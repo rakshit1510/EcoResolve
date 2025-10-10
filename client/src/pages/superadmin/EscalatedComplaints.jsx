@@ -32,42 +32,7 @@ const SuperAdminEscalatedComplaints = () => {
     }
   };
 
-  const handleReassign = async (complaintId, newDepartment) => {
-    if (!confirm(`Are you sure you want to reassign this complaint to ${newDepartment}?`)) return;
 
-    try {
-      await axios.patch(`/api/escalation/${complaintId}/reassign`, 
-        { department: newDepartment },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-      alert("Complaint reassigned successfully!");
-      fetchEscalatedComplaints();
-    } catch (error) {
-      console.error("Error reassigning complaint:", error);
-      alert("Error reassigning complaint");
-    }
-  };
-
-  const handleResolve = async (complaintId) => {
-    if (!confirm("Are you sure you want to mark this complaint as resolved?")) return;
-
-    try {
-      await axios.patch(`/api/escalation/${complaintId}/resolve`, {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      alert("Complaint resolved successfully!");
-      fetchEscalatedComplaints();
-    } catch (error) {
-      console.error("Error resolving complaint:", error);
-      alert("Error resolving complaint");
-    }
-  };
 
   if (loading) {
     return (
@@ -83,20 +48,12 @@ const SuperAdminEscalatedComplaints = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">Escalated Complaints - SuperAdmin</h1>
-            <div className="flex gap-3">
-              <button
-                onClick={fetchEscalatedComplaints}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-              >
-                🔄 Refresh
-              </button>
-              <button
-                onClick={() => navigate("/superadmin/dashboard")}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
-              >
-                Back to Dashboard
-              </button>
-            </div>
+            <button
+              onClick={() => navigate("/superadmin")}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+            >
+              Back to Dashboard
+            </button>
           </div>
         </div>
       </div>
@@ -140,29 +97,7 @@ const SuperAdminEscalatedComplaints = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-3 flex-wrap">
-                  <button
-                    onClick={() => handleResolve(complaint._id)}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-                  >
-                    Mark Resolved
-                  </button>
-                  <select
-                    onChange={(e) => handleReassign(complaint._id, e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>Reassign Department</option>
-                    <option value="Public Works Department (PWD)">Public Works Department (PWD)</option>
-                    <option value="Sanitation Department">Sanitation Department</option>
-                    <option value="Water Supply Department">Water Supply Department</option>
-                    <option value="Electricity Department">Electricity Department</option>
-                    <option value="Parks & Environment Department">Parks & Environment Department</option>
-                  </select>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                    View Details
-                  </button>
-                </div>
+
               </div>
             ))}
           </div>

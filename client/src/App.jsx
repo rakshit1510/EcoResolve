@@ -22,6 +22,8 @@ import AdminApprovals from "./pages/superadmin/AdminApprovals.jsx";
 import EscalatedComplaints from "./pages/admin/EscalatedComplaints.jsx";
 import ReportGeneration from "./pages/admin/ReportGeneration.jsx";
 import SuperAdminEscalatedComplaints from "./pages/superadmin/EscalatedComplaints.jsx";
+import SuperAdminReportGeneration from "./pages/superadmin/ReportGeneration.jsx";
+import Announcements from "./pages/superadmin/Announcements.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminChat from "./pages/Discussion/AdminChat.jsx";
 import HeadChat from "./pages/Discussion/HeadChat.jsx";
@@ -69,6 +71,8 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={["SuperAdmin"]} />}>
           <Route path="/superadmin" element={<SuperAdminDashboard />} />
           <Route path="/superadmin/approvals" element={<AdminApprovals />} />
+          <Route path="/superadmin/reports" element={<SuperAdminReportGeneration />} />
+          <Route path="/superadmin/announcements" element={<Announcements />} />
           <Route path="/superadmin/escalated-complaints" element={<SuperAdminEscalatedComplaints />} />
         </Route>
         
