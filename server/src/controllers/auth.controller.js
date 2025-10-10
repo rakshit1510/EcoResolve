@@ -134,46 +134,63 @@ export const createSuperAdmin = asyncHandler(async (req, res) => {
 
 export const Signup = asyncHandler(async (req, res) => {
     try {
-        const { firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp ,department} = req.body;
-        if (!firstName || !lastName || !email || !password || !confirmPassword || !accountType  || !otp) {
+        const { firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp, department } = req.body;
+
+        // Check required fields
+        if (!firstName || !lastName || !email || !password || !confirmPassword || !accountType || !otp) {
             throw new ApiError(400, "All fields are required");
         }
+
+        // Password confirmation
         if (password !== confirmPassword) {
             throw new ApiError(400, "Passwords do not match");
         }
+
+        // Check if user already exists
         const checkUserAlreadyExists = await User.findOne({ email: email.toLowerCase() });
         if (checkUserAlreadyExists) {
             throw new ApiError(400, "User already exists with this email");
         }
-        
-        // Find the most recent OTP for this email
+
+        // ✅ Phone number validation
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(contactNumber)) {
+            throw new ApiError(400, "Contact number must be a valid 10-digit number");
+        }
+
+        // Find most recent OTP
         const recentOtp = await OTP.findOne({ email: email.toLowerCase() }).sort({ createdAt: -1 });
-        
         if (!recentOtp) {
             throw new ApiError(400, "OTP not found or expired");
-            console.log("Signup request received",firstName, lastName, email, password, confirmPassword, accountType, contactNumber, otp);
         }
+
+        // OTP match check
         if (recentOtp.otp !== otp) {
             throw new ApiError(400, "Invalid OTP");
         }
+
+        // Create Profile
         const profileDetails = await Profile.create({
             gender: null,
             dateOfBirth: null,
             about: null,
             contactNumber: contactNumber,
         });
+
         if (!profileDetails) {
             throw new ApiError(500, "Something went wrong while creating profile details");
         }
-        let approved = true;
-        if(accountType === "Staff" || accountType === "Admin") {
-            approved = false; // Staff and Admin accounts need to be approved by an existing Admin
 
-            if((accountType === "Staff" || accountType === "Admin") && !department){
+        // Account approval logic
+        let approved = true;
+        if (accountType === "Staff" || accountType === "Admin") {
+            approved = false; // requires Admin approval
+            if (!department) {
                 throw new ApiError(400, "Department is required for Staff and Admin accounts");
             }
         }
-        // Create the user
+
+        // Image upload (if provided)
         let image = null;
         if (req.file) {
             image = await uploadOnCloudinary(req.file.path, "users");
@@ -181,6 +198,8 @@ export const Signup = asyncHandler(async (req, res) => {
                 throw new ApiError(500, "Something went wrong while uploading image");
             }
         }
+
+        // Create new user
         const user = await User.create({
             firstName,
             lastName,
@@ -190,25 +209,24 @@ export const Signup = asyncHandler(async (req, res) => {
             accountType,
             department,
             additionalDetails: profileDetails._id,
-            approved: approved,
+            approved,
             image: image ? image.url : undefined,
         });
 
-        const createdUser = await User.findById(user._id).select(
-            "-password -refreshToken"
-        );
+        // Fetch created user without sensitive fields
+        const createdUser = await User.findById(user._id).select("-password -refreshToken");
         if (!createdUser) {
             throw new ApiError(500, "Something went wrong while registering the user");
         }
+
         return res.status(201).json(
-            new ApiResponse(200, createdUser, "User registered Successfully!!")
+            new ApiResponse(200, createdUser, "User registered successfully!")
         );
 
     } catch (error) {
         throw new ApiError(500, error.message || "Something went wrong while signing up");
     }
 });
-
 
 // Citizen Login
 export const loginCitizen = asyncHandler(async (req, res) => {

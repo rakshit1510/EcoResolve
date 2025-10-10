@@ -53,37 +53,60 @@ const deleteComplaint= asyncHandler(async (req,res)=>{
     }
 });
 
-const changeProgressStatus= asyncHandler(async (req,res)=>{
-    try {
-        const {id}= req.params; 
-        const {status}= req.body;
-        const user = req.user._id ? await User.findById(req.user._id) : null;
-        if(!user) throw new ApiError(404, "User not found"); 
-        if(user.accountType !== 'Staff'){
-            throw new ApiError(403, "Only staff can change the progress status of complaints");
-        }
-        const complaint = await Complaint.findById(id);
-        if(!complaint) throw new ApiError(404, "Complaint not found");
-        if(!['pending','open', 'in-progress', 'resolved'].includes(status)){
-            throw new ApiError(400, "Invalid status");
-        }
-        const {email,firstName}= await User.findById(complaint.userId);
-        if(!email) throw new ApiError(404, "User email not found");
-        complaint.status=status;
-        await complaint.save();
-        if(status==='resolved'){
-            complaint.resolvedAt=Date.now();
-            await complaint.save();
-        }
-        await mailSender(email, 'Your Complaint status has been updated', statusUpdateTemplate(firstName,complaint._id,complaint.status));
-        return res.status(200).json(new ApiResponse(200,complaint,"Complaint status updated successfully"));
-    } catch (error) {
-        throw new ApiError(error?.code || 500, error?.message || "Something went wrong while changing the progress status of the complaint");
+const changeProgressStatus = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params; 
+    const { status } = req.body;
+
+    const user = req.user._id ? await User.findById(req.user._id) : null;
+    if (!user) throw new ApiError(404, "User not found"); 
+    if (user.accountType !== 'Staff') {
+      throw new ApiError(403, "Only staff can change the progress status of complaints");
     }
-})
-const getAllComplaints= asyncHandler(async (req,res)=>{
-    try {
-        const user = req.user._id ? await User.findById(req.user._id) : null;
+
+    const complaint = await Complaint.findById(id);
+    if (!complaint) throw new ApiError(404, "Complaint not found");
+
+    // ✅ Match the updated schema
+    if (!['open', 'in-progress', 'resolved', 'rejected'].includes(status)) {
+      throw new ApiError(400, "Invalid status");
+    }
+
+    // update status
+    complaint.status = status;
+
+    // ✅ handle resolved timestamp
+    if (status === 'resolved') {
+      complaint.resolvedAt = Date.now();
+    } else {
+      complaint.resolvedAt = null;
+    }
+
+    await complaint.save();
+
+    // send notification
+    const { email, firstName } = await User.findById(complaint.userId);
+    await mailSender(
+      email,
+      'Your Complaint Status Has Been Updated',
+      statusUpdateTemplate(firstName, complaint._id, complaint.status)
+    );
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, complaint, "Complaint status updated successfully"));
+
+  } catch (error) {
+    throw new ApiError(
+      error?.code || 500,
+      error?.message || "Something went wrong while changing the progress status of the complaint"
+    );
+  }
+});
+
+const getAllComplaints = asyncHandler(async (req, res) => {
+  try {
+    const user = req.user._id ? await User.findById(req.user._id) : null;
 
         if(!user) throw new ApiError(404, "User not found"); 
         let complaints;
