@@ -658,3 +658,121 @@ export const getAccountByQuery= asyncHandler(async (req, res) => {
         throw new ApiError(500, error.message || "Something went wrong while fetching user by query");
     }
 });
+
+// Reject Staff account (delete from DB)
+export const rejectStaffApproval = asyncHandler(async (req, res) => {
+    const adminId = req.user;
+    const { email } = req.body;
+
+    if (!adminId) throw new ApiError(400, "Admin not found");
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const admin = await User.findById(adminId._id);
+    if (!admin || admin.accountType !== "Admin" || !admin.approved) {
+        throw new ApiError(403, "You are not authorized to reject accounts");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) throw new ApiError(404, "User not found");
+    if (user.accountType !== "Staff") throw new ApiError(400, "User is not a staff account");
+
+    await User.deleteOne({ _id: user._id });
+
+    // Simple email
+    await mailSender(user.email, "Account Rejected", `
+        <p>Hi ${user.firstName},</p>
+        <p>Your staff account has been rejected by the admin.</p>
+        <p>If you think this is a mistake, please contact support.</p>
+    `);
+
+    return res.status(200).json(new ApiResponse(200, null, "Staff account rejected and deleted successfully"));
+});
+
+// Reject Admin account (delete from DB)
+export const rejectAdminApproval = asyncHandler(async (req, res) => {
+    const superadminId = req.user;
+    const { email } = req.body;
+
+    if (!superadminId) throw new ApiError(400, "SuperAdmin not found");
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const superadmin = await User.findById(superadminId._id);
+    if (!superadmin || superadmin.accountType !== "SuperAdmin" || !superadmin.approved) {
+        throw new ApiError(403, "You are not authorized to reject accounts");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) throw new ApiError(404, "User not found");
+    if (user.accountType !== "Admin") throw new ApiError(400, "User is not an admin account");
+
+    await User.deleteOne({ _id: user._id });
+
+    // Simple email
+    await mailSender(user.email, "Account Rejected", `
+        <p>Hi ${user.firstName},</p>
+        <p>Your admin account has been rejected by the superadmin.</p>
+        <p>If you think this is a mistake, please contact support.</p>
+    `);
+
+    return res.status(200).json(new ApiResponse(200, null, "Admin account rejected and deleted successfully"));
+});
+
+// Unapprove Staff account (approved = false)
+export const unapproveStaffAccount = asyncHandler(async (req, res) => {
+    const adminId = req.user;
+    const { email } = req.body;
+
+    if (!adminId) throw new ApiError(400, "Admin not found");
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const admin = await User.findById(adminId._id);
+    if (!admin || admin.accountType !== "Admin" || !admin.approved) {
+        throw new ApiError(403, "You are not authorized to unapprove accounts");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) throw new ApiError(404, "User not found");
+    if (user.accountType !== "Staff") throw new ApiError(400, "User is not a staff account");
+
+    user.approved = false;
+    await user.save({ validateBeforeSave: false });
+
+    // Simple email
+    await mailSender(user.email, "Account Unapproved", `
+        <p>Hi ${user.firstName},</p>
+        <p>Your staff account has been unapproved by the admin.</p>
+        <p>Please contact admin for further actions.</p>
+    `);
+
+    return res.status(200).json(new ApiResponse(200, null, "Staff account unapproved successfully"));
+});
+
+// Unapprove Admin account (approved = false)
+export const unapproveAdminAccount = asyncHandler(async (req, res) => {
+    const superadminId = req.user;
+    const { email } = req.body;
+
+    if (!superadminId) throw new ApiError(400, "SuperAdmin not found");
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const superadmin = await User.findById(superadminId._id);
+    if (!superadmin || superadmin.accountType !== "SuperAdmin" || !superadmin.approved) {
+        throw new ApiError(403, "You are not authorized to unapprove accounts");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) throw new ApiError(404, "User not found");
+    if (user.accountType !== "Admin") throw new ApiError(400, "User is not an admin account");
+
+    user.approved = false;
+    await user.save({ validateBeforeSave: false });
+
+    // Simple email
+    await mailSender(user.email, "Account Unapproved", `
+        <p>Hi ${user.firstName},</p>
+        <p>Your admin account has been unapproved by the superadmin.</p>
+        <p>Please contact superadmin for further actions.</p>
+    `);
+
+    return res.status(200).json(new ApiResponse(200, null, "Admin account unapproved successfully"));
+});
