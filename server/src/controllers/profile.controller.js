@@ -124,30 +124,43 @@ export const updateUserProfileImage = asyncHandler(async (req, res) => {
   }
 });
 
-
-export const getUserById= asyncHandler(async(req,res)=>{
+export const getUserProfile = asyncHandler(async (req, res) => {
   try {
-    const totalUser= await User.findById(req.user._id).populate("additionalDetails").select("-password");
-    if(!totalUser){
-      throw new ApiError(400,"user not found")
+    // Fetch user and populate additional details
+    const user = await User.findById(req.user._id)
+      .populate("additionalDetails")
+      .select("-password");
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
     }
-    
-    // Flatten the response to include profile fields at root level
+
+    // Base profile fields (common for all users)
     const userResponse = {
-      firstName: totalUser.firstName,
-      lastName: totalUser.lastName,
-      email: totalUser.email,
-      image: totalUser.image,
-      contactNumber: totalUser.additionalDetails?.contactNumber || "",
-      gender: totalUser.additionalDetails?.gender || "",
-      dateOfBirth: totalUser.additionalDetails?.dateOfBirth || "",
-      about: totalUser.additionalDetails?.about || ""
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      image: user.image,
+      accountType: user.accountType,
+      contactNumber: user.additionalDetails?.contactNumber || "",
+      gender: user.additionalDetails?.gender || "",
+      dateOfBirth: user.additionalDetails?.dateOfBirth || "",
+      about: user.additionalDetails?.about || "",
     };
-    
+
+    // Add department for Staff, Admin, or SuperAdmin
+    if (["Staff", "Admin", "SuperAdmin"].includes(user.accountType)) {
+      userResponse.department = user.department || "Not Assigned";
+    }
+
     return res.status(200).json(
-      new ApiResponse(200, userResponse, "user details fetched successfully")
-    )
+      new ApiResponse(200, userResponse, "User profile fetched successfully")
+    );
   } catch (error) {
-      throw new ApiError(500,"Internal server error while fetching user")
+    throw new ApiError(
+      error?.statusCode || 500,
+      error?.message || "Internal server error while fetching user profile"
+    );
   }
-})
+});
+
