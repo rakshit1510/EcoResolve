@@ -48,15 +48,15 @@ const AdminSignup = () => {
         body: JSON.stringify({ email: formData.email })
       });
       
+      const data = await response.json();
       if (response.ok) {
         setOtpSent(true);
         setMessage(`OTP sent to ${formData.email}`);
       } else {
-        const data = await response.json();
         setMessage(data.message || "Failed to send OTP");
       }
     } catch (error) {
-      setMessage("Network error occurred");
+      setMessage(error.message || "Network error occurred");
     } finally {
       setOtpLoading(false);
     }
@@ -70,6 +70,8 @@ const AdminSignup = () => {
     }
 
     setLoading(true);
+    setMessage("");
+    
     try {
       const response = await fetch("http://localhost:8000/api/auth/signup", {
         method: "POST",
@@ -88,7 +90,7 @@ const AdminSignup = () => {
         setMessage(data.message || "Signup failed");
       }
     } catch (error) {
-      setMessage("Network error occurred");
+      setMessage(error.message || "Network error occurred");
     } finally {
       setLoading(false);
     }

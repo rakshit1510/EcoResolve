@@ -41,7 +41,7 @@ export default function Signup() {
             setOtpSent(true);
             setMessage(`OTP sent to ${formData.email}`);
         } catch (error) {
-            setMessage(error.response?.data?.message || "Failed to send OTP");
+            setMessage(error.response?.data?.message || error.message || "Failed to send OTP");
         } finally {
             setOtpLoading(false);
         }
@@ -185,7 +185,11 @@ export default function Signup() {
                 </form>
 
                 {message && (
-                    <p className="mt-4 text-center text-sm text-gray-600">{message}</p>
+                    <p className={`mt-4 text-center text-sm ${
+                        message.includes("successful") || message.includes("sent") ? "text-green-600" : "text-red-600"
+                    }`}>
+                        {message}
+                    </p>
                 )}
             </div>
         </div>

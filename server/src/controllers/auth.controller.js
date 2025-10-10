@@ -39,16 +39,17 @@ export const sendOTP= asyncHandler(async (req, res) => {
     try {
         const {email}= req.body;
         console.log("Email received for OTP:", req.body );
-        // if (!email) {
-        //     console.log("Email is required");
-        //     throw new ApiError(400, "Email is required");
-        // }
-        console.log("Sending OTP to user");
-        console.log(email);
+        
+        if (!email) {
+            throw new ApiError(400, "Email is required");
+        }
+        
+        console.log("Sending OTP to user:", email);
         const checkUserPresent= await User.findOne({ email: email.toLowerCase() });
         if (checkUserPresent) {
             throw new ApiError(400, "User already exists with this email");
         }   
+        
         const otp = otpGenerator.generate(6, {
             upperCaseAlphabets: false,
             specialChars: false,
@@ -56,16 +57,19 @@ export const sendOTP= asyncHandler(async (req, res) => {
             digits: true
         });
 
-           const name = email.split('@')[0].split('.').map(part => part.replace(/\d+/g, '')).join(' ');
-        console.log(name);
-        await mailSender(email, 'Verification Email from EcoResolve', otpTemplate(otp,name));
+        const name = email.split('@')[0].split('.').map(part => part.replace(/\d+/g, '')).join(' ');
+        console.log("Generated name:", name);
+        
+        // Create OTP record first (this will trigger email sending via pre-save hook)
         const otpData = await OTP.create({
             email: email.toLowerCase(),
             otp: otp
         });
+        
         if(!otpData) {
             throw new ApiError(500, "Something went wrong while saving OTP");
         }
+        
         return res.status(200).json(
             new ApiResponse(200, "OTP sent successfully", {
                 email: email.toLowerCase(),
@@ -73,7 +77,8 @@ export const sendOTP= asyncHandler(async (req, res) => {
             })
         );
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while sending OTP ");
+        console.error("SendOTP Error:", error);
+        throw new ApiError(500, error.message || "Something went wrong while sending OTP");
     }
 })
 
