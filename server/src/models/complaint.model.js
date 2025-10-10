@@ -14,7 +14,7 @@ const complaintSchema = new mongoose.Schema({
     ]
   },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { type: String, enum: ['pending','open', 'in-progress', 'resolved','rejected'], default: 'pending' },
+  status: { type: String, enum: ['open', 'in-progress', 'resolved','rejected'], default: 'open' },
   location: { type: String, required: true },
   imageUrl: { type: String , required: true},
   description: { type: String , required: true },
