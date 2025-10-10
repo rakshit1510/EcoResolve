@@ -52,7 +52,7 @@ const WorkersLogin = () => {
     setError('');
 
     try {
-      await axios.post('http://localhost:8000/api/assignments/resolve', {
+      await axios.post('http://localhost:8000/api/assignments/resolve-assignment', {
         assignmentId: assignmentData.id,
         otp: otpForm.otp
       });
@@ -73,7 +73,7 @@ const WorkersLogin = () => {
     if (!confirm('Are you sure you want to reject this complaint as false?')) return;
     
     try {
-      await axios.patch(`http://localhost:8000/api/assignments/reject/${assignmentData.compliantId}`);
+      await axios.patch(`http://localhost:8000/api/assignments/reject/${assignmentData.compliantId._id}`);
       alert('Complaint rejected successfully. Citizen has been warned.');
       setAssignmentData(null);
       setShowOtpForm(false);

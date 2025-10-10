@@ -7,7 +7,8 @@ import {
   deleteAssignment,
   getOverdueComplaints,
   assignmentLogin,
-  resolveAssignment
+  resolveAssignment,
+  rejectFalseComplaint
 } from "../controllers/assignment.controller.js";
 import { verifyJWT, isStaff, isAdmin } from "../middlewares/auth.middleware.js";
 
@@ -21,6 +22,7 @@ router.get("/:id", verifyJWT, isStaff, getAssignmentById);
 router.put("/:id", verifyJWT, isStaff, updateAssignment);
 router.delete("/:id", verifyJWT, isStaff, deleteAssignment);
 router.get("/overdue-complaints", verifyJWT, getOverdueComplaints);
+router.patch("/reject/:complaintId", rejectFalseComplaint);
 
 
 export default router;

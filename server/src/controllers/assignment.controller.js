@@ -10,8 +10,8 @@ import {
   generateCredentials,
   generateOtp,
 } from "../utils/generateCredentials.js";
-import mailSender from "../utils/mailSender.js"; // ✅
-import sendMail from "../utils/mailSender.js"; // ✅ Alias for consistency
+import mailSender from "../utils/mailSender.js"; 
+
 
 // ✅ Create new Assignment
 export const createAssignment = asyncHandler(async (req, res) => {
@@ -93,6 +93,10 @@ export const createAssignment = asyncHandler(async (req, res) => {
     otpExpiry,
   });
 
+  // Update complaint status to in-progress
+  await Complaint.findByIdAndUpdate(compliantId, { status: "in-progress" });
+  
+  // Update worker and resource statuses
   await Worker.findByIdAndUpdate(workers, { status: "On-Duty" });
   await Resource.updateMany({ _id: { $in: resources } }, { status: "In Use" });
 
@@ -217,6 +221,7 @@ export const assignmentLogin = asyncHandler(async (req, res) => {
 
   const responseData = {
     id: assignment._id,
+    compliantId: assignment.compliantId,
     department: assignment.department,
     location: assignment.location,
     workers: assignment.workers,
@@ -274,7 +279,7 @@ export const resolveAssignment = asyncHandler(async (req, res) => {
 
   const citizenEmail = assignment.compliantId?.userId?.email;
   if (citizenEmail) {
-    await sendMail(
+    await mailSender(
       citizenEmail,
       "Complaint Resolved Successfully",
       `
