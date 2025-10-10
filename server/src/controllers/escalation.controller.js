@@ -97,7 +97,8 @@ export const autoEscalateComplaints = async () => {
       },
       {
         escalationLevel: "admin",
-        escalatedAt: now
+        escalatedAt: now,
+        isEscalated: true // ✅ mark as escalated
       }
     );
 
@@ -110,12 +111,47 @@ export const autoEscalateComplaints = async () => {
       },
       {
         escalationLevel: "superadmin",
-        escalatedAt: now
+        escalatedAt: now,
+        isEscalated: true // ✅ mark as escalated
       }
     );
 
     console.log("Auto-escalation completed successfully");
   } catch (error) {
     console.error("Auto-escalation failed:", error);
+  }
+};
+
+// Get all complaints that were ever escalated
+export const getEverEscalatedComplaints = async (req, res) => {
+  try {
+    const userRole = req.user.accountType;
+
+    if (!["Admin", "SuperAdmin"].includes(userRole)) {
+      throw new ApiError(403, "Access denied");
+    }
+
+    // Fetch complaints where isEscalated = true
+    const complaints = await Complaint.find({
+      isEscalated: true,
+      status: { $in: ["pending", "open", "in-progress"] } // optional, can include resolved if needed
+    })
+      .populate("userId", "firstName lastName email department")
+      .sort({ escalatedAt: -1 });
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          complaints,
+          "All complaints that were ever escalated fetched successfully"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(
+      500,
+      error?.message || "Failed to fetch escalated complaints"
+    );
   }
 };

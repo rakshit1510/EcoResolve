@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 const complaintSchema = new mongoose.Schema({
   department: { 
     type: String, 
@@ -20,11 +19,12 @@ const complaintSchema = new mongoose.Schema({
   description: { type: String , required: true },
   escalationLevel: { type: String, enum: ['staff', 'admin', 'superadmin'], default: 'staff' },
   escalatedAt: { type: Date, default: null },
+  isEscalated: { type: Boolean, default: false }, // ✅ new field
   resolvedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   overdue: { type: Boolean, default: false },
 }, { timestamps: true });
-const Complaint = mongoose.model('Complaint', complaintSchema);
 
+const Complaint = mongoose.model('Complaint', complaintSchema);
 export default Complaint;
