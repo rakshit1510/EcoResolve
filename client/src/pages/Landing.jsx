@@ -26,6 +26,12 @@ export default function LandingPage() {
                         >
                             Login
                         </button>
+                        <button
+                            onClick={() => navigate("/worker-portal")}
+                            className="w-full py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 hover:scale-105 transition cursor-pointer"
+                        >
+                            Are you a worker?
+                        </button>
                     </div>
                 </div>
             </div>

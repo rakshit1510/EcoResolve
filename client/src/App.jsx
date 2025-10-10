@@ -27,6 +27,7 @@ import Announcements from "./pages/superadmin/Announcements.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminChat from "./pages/Discussion/AdminChat.jsx";
 import HeadChat from "./pages/Discussion/HeadChat.jsx";
+import WorkersLogin from "./pages/WorkersLogin.jsx";
 
 function App() {
   return (
@@ -78,6 +79,7 @@ function App() {
         
         <Route path="/AdminChat" element={<AdminChat/>} />
         <Route path="/head/:dept/:head" element={<HeadChat/>} />
+        <Route path="/worker-portal" element={<WorkersLogin />} />
 
         <Route path="*" element={<Landing />} />
       </Routes>
