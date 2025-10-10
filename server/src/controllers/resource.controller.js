@@ -2,7 +2,14 @@ import Resource from "../models/resource.model.js";
 
 export const createResource = async (req, res) => {
   try {
-    const resource = new Resource(req.body);
+    const resourceData = { ...req.body };
+    
+    // Auto-assign department for staff members
+    if (req.user && req.user.accountType === 'Staff') {
+      resourceData.department = req.user.department;
+    }
+    
+    const resource = new Resource(resourceData);
     await resource.save();
     res.status(201).json(resource);
   } catch (err) {
@@ -16,6 +23,11 @@ export const getResources = async (req, res) => {
     if (req.query.status) filters.status = req.query.status;
     if (req.query.department) filters.department = req.query.department;
     if (req.query.category) filters.category = req.query.category;
+
+    // Add department filtering for staff members
+    if (req.user && req.user.accountType === 'Staff') {
+      filters.department = req.user.department;
+    }
 
     const resources = await Resource.find(filters);
     res.status(200).json(resources);

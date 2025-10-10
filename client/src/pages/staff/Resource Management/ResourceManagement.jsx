@@ -9,17 +9,19 @@ export default function ResourceManagement() {
     const [message, setMessage] = useState("");
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingResource, setEditingResource] = useState(null);
-    const [filters, setFilters] = useState({ status: "", department: "", category: "" });
+    const [filters, setFilters] = useState({ status: "" });
     
     const [formData, setFormData] = useState({
         resourceName: "",
-        department: "",
+        department: "", // Will be auto-populated from user profile
         category: "",
         status: "Available",
         location: "",
         nextAvailable: "",
         description: ""
     });
+    
+    const [userDepartment, setUserDepartment] = useState("");
 
     const statusOptions = ["Available", "In Use", "Under Maintenance", "Unavailable"];
     const departments = [
@@ -31,8 +33,24 @@ export default function ResourceManagement() {
     ];
 
     useEffect(() => {
+        fetchUserProfile();
         fetchResources();
     }, [filters]);
+    
+    const fetchUserProfile = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const res = await axios.get("http://localhost:8000/api/profile/getProfile", {
+                headers: { "Authorization": `Bearer ${token}` },
+                withCredentials: true
+            });
+            const department = res.data.data.department;
+            setUserDepartment(department);
+            setFormData(prev => ({ ...prev, department }));
+        } catch (error) {
+            console.error("Failed to fetch user profile");
+        }
+    };
 
     const fetchResources = async () => {
         setLoading(true);
@@ -40,8 +58,7 @@ export default function ResourceManagement() {
             const token = localStorage.getItem('accessToken');
             const params = new URLSearchParams();
             if (filters.status) params.append('status', filters.status);
-            if (filters.department) params.append('department', filters.department);
-            if (filters.category) params.append('category', filters.category);
+
             
             const res = await axios.get(`http://localhost:8000/api/resources?${params}`, {
                 headers: { "Authorization": `Bearer ${token}` },
@@ -118,7 +135,7 @@ export default function ResourceManagement() {
     const resetForm = () => {
         setFormData({
             resourceName: "",
-            department: "",
+            department: userDepartment, // Keep user's department
             category: "",
             status: "Available",
             location: "",
@@ -180,25 +197,6 @@ export default function ResourceManagement() {
                                 <option key={status} value={status}>{status}</option>
                             ))}
                         </select>
-                        <select
-                            name="department"
-                            value={filters.department}
-                            onChange={handleFilterChange}
-                            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">All Departments</option>
-                            {departments.map(dept => (
-                                <option key={dept} value={dept}>{dept}</option>
-                            ))}
-                        </select>
-                        <input
-                            type="text"
-                            name="category"
-                            placeholder="Filter by category"
-                            value={filters.category}
-                            onChange={handleFilterChange}
-                            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
                     </div>
 
                     {/* Create/Edit Form */}
@@ -208,70 +206,81 @@ export default function ResourceManagement() {
                                 {editingResource ? "Edit Resource" : "Create New Resource"}
                             </h3>
                             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <input
-                                    type="text"
-                                    name="resourceName"
-                                    placeholder="Resource Name *"
-                                    value={formData.resourceName}
-                                    onChange={handleChange}
-                                    required
-                                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                />
-                                <select
-                                    name="department"
-                                    value={formData.department}
-                                    onChange={handleChange}
-                                    required
-                                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="">Select Department *</option>
-                                    {departments.map(dept => (
-                                        <option key={dept} value={dept}>{dept}</option>
-                                    ))}
-                                </select>
-                                <input
-                                    type="text"
-                                    name="category"
-                                    placeholder="Category *"
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                    required
-                                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                />
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                >
-                                    {statusOptions.map(status => (
-                                        <option key={status} value={status}>{status}</option>
-                                    ))}
-                                </select>
-                                <input
-                                    type="text"
-                                    name="location"
-                                    placeholder="Location *"
-                                    value={formData.location}
-                                    onChange={handleChange}
-                                    required
-                                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                />
-                                <input
-                                    type="date"
-                                    name="nextAvailable"
-                                    value={formData.nextAvailable}
-                                    onChange={handleChange}
-                                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                />
-                                <textarea
-                                    name="description"
-                                    placeholder="Description"
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                    className="md:col-span-2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    rows={3}
-                                />
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Resource Name *</label>
+                                    <input
+                                        type="text"
+                                        name="resourceName"
+                                        placeholder="Enter resource name"
+                                        value={formData.resourceName}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                                    <input
+                                        type="text"
+                                        name="category"
+                                        placeholder="Enter category"
+                                        value={formData.category}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select
+                                        name="status"
+                                        value={formData.status}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        {statusOptions.map(status => (
+                                            <option key={status} value={status}>{status}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
+                                    <input
+                                        type="text"
+                                        name="location"
+                                        placeholder="Enter location"
+                                        value={formData.location}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Next Available Date</label>
+                                    <input
+                                        type="date"
+                                        name="nextAvailable"
+                                        value={formData.nextAvailable}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <textarea
+                                        name="description"
+                                        placeholder="Enter description (optional)"
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        rows={3}
+                                    />
+                                </div>
                                 <div className="md:col-span-2 flex gap-3">
                                     <button
                                         type="submit"

@@ -178,12 +178,6 @@ const WorkersManagement = () => {
             <option value="Off-Duty">Off-Duty</option>
             <option value="Retired">Retired</option>
           </select>
-          <button
-            onClick={() => setFilters({ status: '', department: '' })}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 cursor-pointer"
-          >
-            Clear Filters
-          </button>
         </div>
       </div>
 

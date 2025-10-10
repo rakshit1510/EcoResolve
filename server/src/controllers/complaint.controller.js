@@ -123,6 +123,11 @@ const getAllComplaints = asyncHandler(async (req, res) => {
             complaints = await Complaint.find({userId:user._id}).populate('userId','firstName lastName email');
         }
         else if(user.accountType === 'Staff'){
+            // Staff can only see complaints from their department
+            complaints = await Complaint.find({department: user.department}).populate('userId','firstName lastName email');
+        }
+        else if(user.accountType === 'Admin'){
+            // Admin can see all complaints
             complaints = await Complaint.find().populate('userId','firstName lastName email');
         }
         else{
@@ -238,7 +243,14 @@ export const getresolvedComplaints = asyncHandler(async (req, res) => {
     }
 
     // get resolved complaints
-    const complaints = await Complaint.find({ status: 'resolved' })
+    let complaintsQuery = { status: 'resolved' };
+    
+    // Staff can only see resolved complaints from their department
+    if (user.accountType === 'Staff') {
+      complaintsQuery.department = user.department;
+    }
+    
+    const complaints = await Complaint.find(complaintsQuery)
       .populate({ path: 'userId', select: 'firstName lastName email' });
 
     if (!complaints || complaints.length === 0)

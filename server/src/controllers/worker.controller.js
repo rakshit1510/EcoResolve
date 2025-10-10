@@ -17,6 +17,11 @@ export const getWorkers = async (req, res) => {
     if (req.query.department) filters.department = req.query.department;
     if (req.query.skills) filters.skills = { $in: req.query.skills.split(",") };
 
+    // Add department filtering for staff members
+    if (req.user && req.user.accountType === 'Staff') {
+      filters.department = req.user.department;
+    }
+
     const workers = await Worker.find(filters);
     res.json(workers);
   } catch (error) {
