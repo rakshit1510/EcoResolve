@@ -48,8 +48,8 @@ export default function StaffDashboard() {
             path: "/staff/complaints"
         },
         {
-            title: "Profile Settings",
-            description: "Update your personal information and preferences",
+            title: "View Profile",
+            description: "View your personal information and account details",
             icon: "👤",
             path: "/staff/profile"
         }

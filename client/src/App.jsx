@@ -14,6 +14,7 @@ import WorkersManagement from "./pages/staff/Workers Management/WorkersManagemen
 import TaskAssignment from "./pages/staff/Task Assignment/TaskAssignment.jsx";
 import ComplaintManagement from "./pages/staff/Complaint Management/ComplaintManagement.jsx";
 import ComplaintReview from "./pages/staff/Complaint Review/ComplaintReview.jsx";
+import ViewProfile from "./pages/staff/ViewProfile.jsx";
 import StaffDashboard from "./pages/staff/Dashboard.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import SuperAdminDashboard from "./pages/superadmin/Dashboard.jsx";
@@ -51,7 +52,7 @@ function App() {
           <Route path="/staff/city-map" element={<div>City Complaint Map - Coming Soon</div>} />
           <Route path="/staff/reviews" element={<ComplaintReview />} />
           <Route path="/staff/complaints" element={<ComplaintManagement />} />
-          <Route path="/staff/profile" element={<div>Staff Profile - Coming Soon</div>} />
+          <Route path="/staff/profile" element={<ViewProfile />} />
         </Route>
 
         {/* Admin Routes */}
