@@ -19,7 +19,7 @@ export const getEscalatedComplaints = async (req, res) => {
     const complaints = await Complaint.find({
       escalationLevel: escalationLevel,
       status: { $in: ["pending", "open", "in-progress"] }
-    }).populate("userId", "name email").sort({ escalatedAt: -1 });
+    }).populate("userId", "firstName lastName email").sort({ escalatedAt: -1 });
 
     res.status(200).json(new ApiResponse(200, complaints, "Escalated complaints fetched successfully"));
   } catch (error) {

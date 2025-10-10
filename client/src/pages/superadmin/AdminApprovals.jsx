@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AdminApprovals = () => {
   const navigate = useNavigate();
@@ -9,13 +10,10 @@ const AdminApprovals = () => {
 
   const fetchPendingAdmins = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/auth/unapproved-admins", {
+      const response = await axios.get("/api/auth/unapproved-admins", {
         headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
       });
-      const data = await response.json();
-      if (response.ok) {
-        setPendingAdmins(data.data || []);
-      }
+      setPendingAdmins(response.data.data || []);
     } catch (error) {
       console.error("Failed to fetch pending admins", error);
     }
@@ -24,24 +22,20 @@ const AdminApprovals = () => {
   const approveAdmin = async (email) => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/api/auth/approve-admin-account", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-        },
-        body: JSON.stringify({ email })
-      });
+      await axios.post("/api/auth/approve-admin-account", 
+        { email },
+        {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+          }
+        }
+      );
       
-      if (response.ok) {
-        setMessage("Admin approved successfully!");
-        fetchPendingAdmins();
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Failed to approve admin");
-      }
+      setMessage("Admin approved successfully!");
+      fetchPendingAdmins();
+      setTimeout(() => setMessage(""), 3000);
     } catch (error) {
-      setMessage("Network error occurred");
+      setMessage("Failed to approve admin");
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SuperAdminEscalatedComplaints = () => {
   const navigate = useNavigate();
@@ -12,21 +13,16 @@ const SuperAdminEscalatedComplaints = () => {
 
   const fetchEscalatedComplaints = async () => {
     try {
-      const response = await fetch("/api/escalation/escalated", {
+      const response = await axios.get("/api/escalation/escalated", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (data.status) {
-        setEscalatedComplaints(data.data);
+      if (response.data.status) {
+        setEscalatedComplaints(response.data.data);
       } else {
-        console.error("API returned error:", data.message);
+        console.error("API returned error:", response.data.message);
       }
     } catch (error) {
       console.error("Error fetching escalated complaints:", error);
@@ -40,20 +36,16 @@ const SuperAdminEscalatedComplaints = () => {
     if (!confirm(`Are you sure you want to reassign this complaint to ${newDepartment}?`)) return;
 
     try {
-      const response = await fetch(`/api/escalation/${complaintId}/reassign`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({ department: newDepartment }),
-      });
-      if (response.ok) {
-        alert("Complaint reassigned successfully!");
-        fetchEscalatedComplaints();
-      } else {
-        alert("Failed to reassign complaint");
-      }
+      await axios.patch(`/api/escalation/${complaintId}/reassign`, 
+        { department: newDepartment },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      alert("Complaint reassigned successfully!");
+      fetchEscalatedComplaints();
     } catch (error) {
       console.error("Error reassigning complaint:", error);
       alert("Error reassigning complaint");
@@ -64,19 +56,13 @@ const SuperAdminEscalatedComplaints = () => {
     if (!confirm("Are you sure you want to mark this complaint as resolved?")) return;
 
     try {
-      const response = await fetch(`/api/escalation/${complaintId}/resolve`, {
-        method: "PATCH",
+      await axios.patch(`/api/escalation/${complaintId}/resolve`, {}, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      if (response.ok) {
-        alert("Complaint resolved successfully!");
-        fetchEscalatedComplaints();
-      } else {
-        alert("Failed to resolve complaint");
-      }
+      alert("Complaint resolved successfully!");
+      fetchEscalatedComplaints();
     } catch (error) {
       console.error("Error resolving complaint:", error);
       alert("Error resolving complaint");
@@ -130,7 +116,7 @@ const SuperAdminEscalatedComplaints = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Complaint #{complaint._id.slice(-6)}</h3>
                     <p className="text-sm text-gray-600">Status: {complaint.status}</p>
-                    <p className="text-sm text-gray-600">Citizen: {complaint.userId?.name || 'N/A'}</p>
+                    <p className="text-sm text-gray-600">Citizen: {complaint.userId ? `${complaint.userId.firstName} ${complaint.userId.lastName}` : 'N/A'}</p>
                   </div>
                   <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
                     {complaint.escalationLevel.toUpperCase()}
