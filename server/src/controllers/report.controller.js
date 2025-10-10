@@ -6,6 +6,8 @@ import User from "../models/user.model.js";
 import { Parser } from "json2csv"; // for CSV export
 import PDFDocument from "pdfkit";  // for PDF export
 import fs from "fs";
+import path from "path";
+import os from "os";
 
 /**
  * Generate complaint report (Admin only)
@@ -98,7 +100,7 @@ export const generateReport = asyncHandler(async (req, res) => {
   // 🔵 PDF format
   if (format === "pdf") {
     const doc = new PDFDocument();
-    const filePath = `/tmp/complaint_report_${Date.now()}.pdf`;
+    const filePath = path.join(os.tmpdir(), `complaint_report_${Date.now()}.pdf`);
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
