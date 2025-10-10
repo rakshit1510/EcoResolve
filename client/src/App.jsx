@@ -3,8 +3,11 @@ import Landing from "./pages/Landing.jsx";
 import TabbedSignup from "./pages/TabbedSignup.jsx";
 import Login from "./pages/Login.jsx";
 import CitizenDashboard from "./pages/citizen/Dashboard.jsx";
-import Geotagging from "./pages/citizen/Geotagging/Geotagging.jsx";
+// import Geotagging from "./pages/citizen/Geotagging/Geotagging.jsx";
+import HeatMap from "./pages/GIS_Pages/data/HeatMap.jsx";
 import Complaints from "./pages/citizen/Complaints/Complaints.jsx";
+import ComplaintWithMap from "./pages/citizen/ComplaintWithMap.jsx";
+import GISPopups from "./pages/GIS_Pages/data/GISPopups.jsx";
 import ComplaintStatus from "./pages/citizen/Complaints/ComplaintStatus.jsx";
 import ProfileOptions from "./pages/citizen/ProfileOptions.jsx";
 import Feedback from "./pages/citizen/Feedback.jsx";
@@ -40,8 +43,10 @@ function App() {
         {/* Citizen Routes */}
         <Route element={<ProtectedRoute allowedRoles={["Citizen"]} />}>
           <Route path="/citizen" element={<CitizenDashboard />} />
-          <Route path="/citizen/geotagging" element={<Geotagging />} />
-          <Route path="/citizen/complaints" element={<Complaints />} />
+          <Route path="/citizen/heatmap" element={<HeatMap />} />
+          {/* <Route path="/citizen/geotagging" element={<Geotagging />} /> */}
+          <Route path="/citizen/complaints" element={<ComplaintWithMap />} />
+          <Route path="/citizen/complaints-basic" element={<Complaints />} />
           <Route path="/citizen/complaint-status" element={<ComplaintStatus />} />
           <Route path="/citizen/profile" element={<ProfileOptions />} />
           <Route path="/citizen/feedback" element={<Feedback />} />
@@ -53,7 +58,8 @@ function App() {
           <Route path="/staff/resources" element={<ResourceManagement />} />
           <Route path="/staff/workers" element={<WorkersManagement />} />
           <Route path="/staff/assignments" element={<TaskAssignment />} />
-          <Route path="/staff/city-map" element={<div>City Complaint Map - Coming Soon</div>} />
+          <Route path="/staff/city-map" element={<GISPopups />} />
+          {/* <Route path="/staff/city-map" element={<div>City Complaint Map - Coming Soon</div>} /> */}
           <Route path="/staff/reviews" element={<ComplaintReview />} />
           <Route path="/staff/complaints" element={<ComplaintManagement />} />
           <Route path="/staff/profile" element={<ViewProfile />} />

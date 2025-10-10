@@ -9,7 +9,7 @@ import statusUpdateTemplate from '../email/templates/statusUpdateTemplate.js';
 import { uploadOnCloudinary } from '../utils/Cloudinary.js';
 
 const createComplaint= asyncHandler(async (req,res)=>{
-    const {department,location,description}= req.body;
+    const {department,location,description,latitude,longitude}= req.body;
     const user = req.user._id ? await User.findById(req.user._id) : null;
     const imageUrl = req.file ? req.file.path : null;
     
@@ -22,13 +22,22 @@ const createComplaint= asyncHandler(async (req,res)=>{
     const serviceImage = await uploadOnCloudinary(imageUrl);
     if(!serviceImage) throw new ApiError(500, "Failed to upload image");
     
-    const complaint = await Complaint.create({
+    // Prepare complaint data with optional coordinates
+    const complaintData = {
       userId: user._id,
       department,
       location,
       imageUrl: serviceImage.secure_url,
       description,
-    });
+    };
+    
+    // Add coordinates only if provided (for backward compatibility)
+    if (latitude && longitude) {
+      complaintData.latitude = parseFloat(latitude);
+      complaintData.longitude = parseFloat(longitude);
+    }
+    
+    const complaint = await Complaint.create(complaintData);
 
     return res.status(200).json(new ApiResponse(200,complaint,"Complaint created successfully"));
 });

@@ -6,7 +6,7 @@ export default function Feedback() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("create");
     const [myReviews, setMyReviews] = useState([]);
-    const [resolvedComplaints, setResolvedComplaints] = useState([]);
+    const [reviewableComplaints, setReviewableComplaints] = useState([]);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     
@@ -21,7 +21,7 @@ export default function Feedback() {
         if (activeTab === "my-reviews") {
             fetchMyReviews();
         } else if (activeTab === "create") {
-            fetchResolvedComplaints();
+            fetchReviewableComplaints();
         }
     }, [activeTab]);
 
@@ -33,7 +33,10 @@ export default function Feedback() {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
-            setMyReviews(res.data.data || []);
+            const reviewsData = res.data.data || [];
+            // Sort reviews by creation date (latest first)
+            const sortedReviews = reviewsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setMyReviews(sortedReviews);
         } catch (error) {
             setMessage("Failed to fetch your reviews");
         } finally {
@@ -41,7 +44,7 @@ export default function Feedback() {
         }
     };
 
-    const fetchResolvedComplaints = async () => {
+    const fetchReviewableComplaints = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
@@ -49,11 +52,13 @@ export default function Feedback() {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
-            // Filter only resolved complaints
-            const resolved = res.data.data?.filter(complaint => complaint.status === 'resolved') || [];
-            setResolvedComplaints(resolved);
+            // Filter resolved and rejected complaints
+            const reviewable = res.data.data?.filter(complaint => 
+                complaint.status === 'resolved' || complaint.status === 'rejected'
+            ) || [];
+            setReviewableComplaints(reviewable);
         } catch (error) {
-            setMessage("Failed to fetch resolved complaints");
+            setMessage("Failed to fetch reviewable complaints");
         } finally {
             setLoading(false);
         }
@@ -72,7 +77,7 @@ export default function Feedback() {
             });
             setMessage("Review submitted successfully!");
             setReviewForm({ complaintId: "", rating: 5, comment: "" });
-            fetchResolvedComplaints();
+            fetchReviewableComplaints();
         } catch (error) {
             setMessage(error.response?.data?.message || "Failed to submit review");
         } finally {
@@ -82,20 +87,23 @@ export default function Feedback() {
 
     const renderStars = (rating, interactive = false, onChange = null) => {
         return (
-            <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                        key={star}
-                        type={interactive ? "button" : undefined}
-                        onClick={interactive ? () => onChange(star) : undefined}
-                        className={`text-2xl ${interactive ? 'cursor-pointer hover:scale-110' : ''} transition ${
-                            star <= rating ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
-                        disabled={!interactive}
-                    >
-                        ⭐
-                    </button>
-                ))}
+            <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                            key={star}
+                            type={interactive ? "button" : undefined}
+                            onClick={interactive ? () => onChange(star) : undefined}
+                            className={`text-2xl ${interactive ? 'cursor-pointer hover:scale-110' : ''} transition ${
+                                star <= rating ? 'text-yellow-400' : 'text-gray-300'
+                            }`}
+                            disabled={!interactive}
+                        >
+                            ⭐
+                        </button>
+                    ))}
+                </div>
+                <span className="text-sm font-medium text-gray-600">{rating}/5</span>
             </div>
         );
     };
@@ -152,13 +160,13 @@ export default function Feedback() {
                         {/* Create Review Tab */}
                         {activeTab === "create" && (
                             <div>
-                                <h3 className="text-lg font-semibold mb-4">Rate Your Resolved Complaints</h3>
+                                <h3 className="text-lg font-semibold mb-4">Rate Your Resolved/Rejected Complaints</h3>
                                 {loading ? (
                                     <div className="text-center py-8">Loading...</div>
-                                ) : resolvedComplaints.length === 0 ? (
+                                ) : reviewableComplaints.length === 0 ? (
                                     <div className="text-center py-8">
                                         <div className="text-4xl mb-4">📋</div>
-                                        <p className="text-gray-500">No resolved complaints to review</p>
+                                        <p className="text-gray-500">No resolved or rejected complaints to review</p>
                                     </div>
                                 ) : (
                                     <form onSubmit={handleReviewSubmit} className="space-y-6">
@@ -172,10 +180,10 @@ export default function Feedback() {
                                                 required
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                                             >
-                                                <option value="">Choose a resolved complaint</option>
-                                                {resolvedComplaints.map((complaint) => (
+                                                <option value="">Choose a complaint to review</option>
+                                                {reviewableComplaints.map((complaint) => (
                                                     <option key={complaint._id} value={complaint._id}>
-                                                        {complaint.department} - {complaint.location}
+                                                        {complaint.department} - {complaint.location} ({complaint.status})
                                                     </option>
                                                 ))}
                                             </select>
@@ -234,7 +242,7 @@ export default function Feedback() {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
                                                         <h4 className="font-semibold text-gray-900">
-                                                            {review.complaint?.department} - {review.complaint?.location}
+                                                            {review.complaintId?.department} - {review.complaintId?.location}
                                                         </h4>
                                                         <p className="text-sm text-gray-500">
                                                             Reviewed on {new Date(review.createdAt).toLocaleDateString()}
@@ -242,7 +250,7 @@ export default function Feedback() {
                                                     </div>
                                                     {renderStars(review.rating)}
                                                 </div>
-                                                <p className="text-gray-700">{review.comment}</p>
+                                                <p className="text-gray-700">{review.feedback || review.comment}</p>
                                             </div>
                                         ))}
                                     </div>

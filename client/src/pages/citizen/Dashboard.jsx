@@ -12,14 +12,20 @@ export default function CitizenDashboard() {
 
     const dashboardOptions = [
         {
-            title: "City Complaint Map",
-            description: "View all complaints in your city on an interactive map",
+            title: "Complaint Heatmap",
+            description: "View complaint density and analytics on interactive heatmap",
             icon: "🗺️",
-            path: "/citizen/geotagging"
+            path: "/citizen/heatmap"
         },
+        // {
+        //     title: "City Complaint Map",
+        //     description: "View all complaints in your city on an interactive map",
+        //     icon: "🗺️",
+        //     path: "/citizen/geotagging"
+        // },
         {
             title: "Submit Complaint",
-            description: "Report a new civic issue or problem",
+            description: "Report a new civic issue with precise location mapping",
             icon: "📝",
             path: "/citizen/complaints"
         },

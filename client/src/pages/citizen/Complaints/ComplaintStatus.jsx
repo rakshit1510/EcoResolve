@@ -34,7 +34,10 @@ const ComplaintStatus = () => {
         withCredentials: true
       });
 
-      setComplaints(response.data.data || []);
+      const complaintsData = response.data.data || [];
+      // Sort complaints by creation date (latest first)
+      const sortedComplaints = complaintsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setComplaints(sortedComplaints);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to fetch complaints");
     } finally {
@@ -65,7 +68,7 @@ const ComplaintStatus = () => {
             <h1 className="text-2xl font-bold text-gray-900">My Complaints</h1>
             <button
               onClick={() => navigate("/citizen")}
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
             >
               ← Back to Dashboard
             </button>

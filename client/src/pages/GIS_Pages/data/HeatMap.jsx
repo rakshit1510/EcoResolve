@@ -60,10 +60,40 @@ const HeatMap = () => {
   const mapRef = useRef();
 
   useEffect(() => {
-    // Load complaints from localStorage
-    const storedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
-    setComplaints(storedComplaints);
+    fetchComplaints();
   }, []);
+
+  const fetchComplaints = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const axios = (await import('axios')).default;
+      const response = await axios.get('http://localhost:8000/api/complaints/getAllComplaints', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const complaintsData = response.data.data || [];
+      // Transform backend data to match component expectations
+      const transformedComplaints = complaintsData.map(complaint => ({
+        ...complaint,
+        complaintType: complaint.department,
+        // Handle both old (string location) and new (coordinate) complaints
+        latitude: complaint.latitude ? parseFloat(complaint.latitude) : null,
+        longitude: complaint.longitude ? parseFloat(complaint.longitude) : null,
+        urgency: complaint.priority || complaint.status === 'resolved' ? 'low' : 'medium',
+        createdAt: complaint.createdAt || new Date().toISOString()
+      }));
+      setComplaints(transformedComplaints);
+    } catch (error) {
+      console.error('Failed to fetch complaints:', error);
+      // Fallback to localStorage for testing
+      // const storedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      // setComplaints(storedComplaints);
+      setComplaints([]);
+    }
+  };
 
   // Component to handle heatmap layer with dynamic radius based on zoom
   const HeatmapLayer = () => {
@@ -245,12 +275,22 @@ const HeatMap = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
-          Complaint Analytics Dashboard
-        </h1>
-        <p className="text-center text-gray-600 mb-8">
-          Visualize and navigate through city complaints
-        </p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">
+              Complaint Analytics Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Visualize and navigate through city complaints
+            </p>
+          </div>
+          <button
+            onClick={() => window.history.back()}
+            className="text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
 
         {/* Controls */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -485,6 +525,15 @@ const HeatMap = () => {
           <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mt-6">
             <p className="text-yellow-800">
               <strong>No complaints found.</strong> Register some complaints first to see the heatmap visualization.
+            </p>
+          </div>
+        )}
+        
+        {/* Coordinate Notice */}
+        {complaints.length > 0 && complaints.filter(c => c.latitude && c.longitude).length === 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mt-6">
+            <p className="text-blue-800">
+              <strong>No location coordinates found.</strong> Complaints exist but don't have GPS coordinates for mapping. Use the new complaint form with location picker to add coordinates.
             </p>
           </div>
         )}

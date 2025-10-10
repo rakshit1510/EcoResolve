@@ -85,12 +85,10 @@ const getReviewsByUser = asyncHandler(async (req, res) => {
     if (!user) throw new ApiError("User not found", 404);
 
     const reviews = await Review.find({ userId: user._id })
-      .populate({ path: 'userId', select: 'firstName lastName email' });
+      .populate({ path: 'userId', select: 'firstName lastName email' })
+      .populate({ path: 'complaintId', select: 'department location status' });
 
-    if (!reviews || reviews.length === 0)
-      throw new ApiError("No reviews found for this user", 404);
-
-    return res.status(200).json(new ApiResponse(200, reviews, "Reviews fetched successfully"));
+    return res.status(200).json(new ApiResponse(200, reviews || [], "Reviews fetched successfully"));
   } catch (error) {
     throw new ApiError(error?.message || "Something went wrong while fetching user reviews", error?.code || 500);
   }

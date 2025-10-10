@@ -15,6 +15,8 @@ const complaintSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: { type: String, enum: ['open', 'in-progress', 'resolved','rejected'], default: 'open' },
   location: { type: String, required: true },
+  latitude: { type: Number, required: false },
+  longitude: { type: Number, required: false }, 
   imageUrl: { type: String , required: true},
   description: { type: String , required: true },
   escalationLevel: { type: String, enum: ['staff', 'admin', 'superadmin'], default: 'staff' },
