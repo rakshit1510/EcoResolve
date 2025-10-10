@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
         "Parks & Environment Department",
       ],
       required: function () {
-        return this.accountType !== "Citizen";
+        return this.accountType !== "Citizen" && this.accountType!=="SuperAdmin";
       },
     },
     additionalDetails: {
