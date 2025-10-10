@@ -99,14 +99,22 @@ const getReviewsByUser = asyncHandler(async (req, res) => {
 // ✅ Get all reviews
 const getAllReviews = asyncHandler(async (req, res) => {
   try {
-    const reviews = await Review.find()
-      .populate({ path: 'userId', select: 'firstName lastName email' });
-    if (!reviews || reviews.length === 0)
-      throw new ApiError("No reviews found", 404);
+    const reviews = await Review.find().populate({
+      path: "userId",
+      select: "firstName lastName email",
+    });
 
-    return res.status(200).json(new ApiResponse(200, reviews, "All reviews fetched successfully"));
+    // Always return 200, even if empty
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, reviews || [], "All reviews fetched successfully")
+      );
   } catch (error) {
-    throw new ApiError(error?.message || "Something went wrong while fetching reviews", error?.code || 500);
+    throw new ApiError(
+      error?.message || "Something went wrong while fetching reviews",
+      error?.code || 500
+    );
   }
 });
 

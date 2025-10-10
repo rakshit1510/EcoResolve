@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const TaskAssignment = () => {
+  const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [workers, setWorkers] = useState([]);
@@ -147,12 +149,20 @@ const TaskAssignment = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Task Assignment</h1>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
-        >
-          Create Assignment
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
+          >
+            Create Assignment
+          </button>
+          <button
+            onClick={() => navigate('/staff')}
+            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
       </div>
 
       {error && (

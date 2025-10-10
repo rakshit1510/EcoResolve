@@ -36,6 +36,7 @@ app.use("/api/reviews", reviewRoutes)
 app.use("/api/reports", reportRoutes);
 app.use("/api/escalation", escalationRoutes);
 app.use("/api/profile", profileRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
