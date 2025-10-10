@@ -36,7 +36,7 @@ const WorkersLogin = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8000/api/assignments/login', formData);
+      const response = await axios.post('http://localhost:8000/api/assignments/assignment-login', formData);
       setAssignmentData(response.data.data);
       setShowOtpForm(true);
     } catch (err) {

@@ -50,8 +50,8 @@ const TaskAssignment = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const complaintsData = response.data.data || response.data;
-      const pendingComplaints = complaintsData.filter(c => c.status === 'pending');
-      setComplaints(pendingComplaints);
+      const openComplaints = complaintsData.filter(c => c.status === 'open');
+      setComplaints(openComplaints);
     } catch (err) {
       console.error('Failed to fetch complaints:', err);
     } finally {
