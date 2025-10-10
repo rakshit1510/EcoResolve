@@ -30,9 +30,7 @@ const WorkersManagement = () => {
       const response = await axios.get('/api/profile/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('Profile response:', response.data);
       const department = response.data.data.department;
-      console.log('User department:', department);
       setUserDepartment(department);
     } catch (err) {
       console.error('Failed to fetch user profile:', err);

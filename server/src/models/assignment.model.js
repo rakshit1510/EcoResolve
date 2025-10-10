@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const assignmentSchema = new mongoose.Schema(
   {
-    workers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Worker", required: true }],
+    workers: { type: mongoose.Schema.Types.ObjectId, ref: "Worker", required: true },
     resources: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resource", required: true }],
     compliantId: { type: mongoose.Schema.Types.ObjectId, ref: "Complaint", required: true },
     department: { type: String, required: true },

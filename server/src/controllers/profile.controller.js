@@ -124,7 +124,7 @@ export const updateUserProfileImage = asyncHandler(async (req, res) => {
   }
 });
 
-export const getUserProfile = asyncHandler(async (req, res) => {
+export const getUserById = asyncHandler(async (req, res) => {
   try {
     // Fetch user and populate additional details
     const user = await User.findById(req.user._id)

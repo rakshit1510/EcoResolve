@@ -117,7 +117,7 @@ export const createAssignment = async (req, res) => {
 
 
 // ✅ Get All Assignments (with filters)
-export const getAssignments = async (req, res) => {
+export const getAssignments = asyncHandler(async (req, res) => {
   try {
     const filters = {};
     if (req.query.workerId) filters.workers = req.query.workerId;
@@ -138,7 +138,7 @@ export const getAssignments = async (req, res) => {
       error?.message || "Failed to fetch assignments"
     );
   }
-};
+});
 
 
 // ✅ Get Single Assignment by ID
