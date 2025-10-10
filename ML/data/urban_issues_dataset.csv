@@ -1,0 +1,256 @@
+text,label,severity
+Large pothole on Main Street causing vehicle damage,road_damage,high
+Small crack in sidewalk near park entrance,road_damage,low
+Multiple deep potholes on highway exit ramp,road_damage,high
+Uneven pavement on residential street,road_damage,medium
+Broken asphalt on parking lot,road_damage,medium
+Exposed live wires hanging from utility pole,safety_hazard,high
+Sparkling electrical box near school playground,safety_hazard,high
+Flickering street light on corner,safety_hazard,medium
+Loose electrical cable on sidewalk,safety_hazard,medium
+Damaged power line after storm,safety_hazard,high
+Overflowing trash bins in public park,sanitation,medium
+Garbage dumped illegally in vacant lot,sanitation,high
+Litter accumulation along river bank,sanitation,medium
+Food waste attracting rodents in alley,sanitation,high
+Recycling bin overflow at apartment complex,sanitation,low
+Fallen tree blocking entire road,obstruction,high
+Large branch hanging over power lines,obstruction,medium
+Tree debris on bicycle path,obstruction,low
+Uprooted tree damaging sidewalk,obstruction,high
+Fallen limbs after thunderstorm,obstruction,medium
+Car parked in fire lane,traffic_issue,high
+Vehicles blocking driveway access,traffic_issue,medium
+Illegal parking in disabled spot,traffic_issue,high
+Double parking during rush hour,traffic_issue,medium
+Abandoned vehicle on residential street,traffic_issue,low
+Graffiti on public library wall,public_property,medium
+Vandalized bus shelter glass broken,public_property,high
+Spray paint on historical monument,public_property,high
+Damaged park bench,public_property,low
+Broken playground equipment,public_property,medium
+Sewage leak in street,public_health,high
+Standing water breeding mosquitoes,public_health,medium
+Animal carcass on roadside,public_health,high
+Mold growth in public restroom,public_health,medium
+Poor drainage causing flooding,public_health,medium
+Missing stop sign at busy intersection,traffic_safety,high
+Faded crosswalk markings near school,traffic_safety,medium
+Malfunctioning traffic signal,traffic_safety,high
+Obstructed view at intersection,traffic_safety,medium
+No sidewalk in pedestrian area,traffic_safety,low
+Water main break flooding street,water_issue,high
+Leaking fire hydrant,water_issue,medium
+Clogged storm drain,water_issue,medium
+Low water pressure in neighborhood,water_issue,low
+Water discoloration reported,water_issue,medium
+Large sinkhole developing on Oak Avenue,road_damage,high
+Washboard road surface on county road,road_damage,medium
+Pothole damaging car tires on commute,road_damage,high
+Cracked concrete on bridge approach,road_damage,medium
+Alligator cracking on asphalt surface,road_damage,low
+Downed power lines across roadway,safety_hazard,high
+Smoking transformer on utility pole,safety_hazard,high
+Exposed electrical panel in park,safety_hazard,medium
+Arcing wires during rainstorm,safety_hazard,high
+Uncovered manhole in street,safety_hazard,high
+Illegal dumping of construction debris,sanitation,high
+Medical waste found in public trash,sanitation,high
+Overflowing dumpster behind mall,sanitation,medium
+Hazardous materials spill,sanitation,high
+Dog waste not cleaned in park,sanitation,low
+Large oak tree blocking both lanes,obstruction,high
+Fallen tree damaging power lines,obstruction,high
+Branch obstructing pedestrian walkway,obstruction,medium
+Tree leaning dangerously toward house,obstruction,high
+Vegetation overgrowth blocking sidewalk,obstruction,low
+Semi-truck parked in residential area,traffic_issue,medium
+Vehicles parked on bike lane,traffic_issue,medium
+Construction equipment blocking street,traffic_issue,high
+Delivery trucks double parked,traffic_issue,medium
+Overnight parking violation,traffic_issue,low
+Extensive graffiti on subway station,public_property,high
+Broken windows in community center,public_property,medium
+Vandalized public art installation,public_property,high
+Stolen street signs,public_property,medium
+Damaged public phone booth,public_property,low
+Raw sewage backup in basement,public_health,high
+Contaminated water supply concern,public_health,high
+Rat infestation in apartment building,public_health,high
+Pest problem in restaurant district,public_health,medium
+Garbage strike causing accumulation,public_health,high
+School zone sign missing,traffic_safety,high
+Speed limit sign damaged,traffic_safety,medium
+Traffic light timing incorrect,traffic_safety,medium
+Pedestrian crossing button broken,traffic_safety,low
+No street lighting on dark road,traffic_safety,high
+Water pipe burst flooding homes,water_issue,high
+Boil water advisory issued,water_issue,high
+Fire hydrant not working,water_issue,medium
+Water leak in public park,water_issue,low
+Irrigation system malfunction,water_issue,low
+Massive pothole swallowing car tires,road_damage,high
+Road collapse after heavy rains,road_damage,high
+Bridge deck deterioration,road_damage,high
+Speed bump damage from plow,road_damage,medium
+Pavement failure on curve,road_damage,high
+Electrical fire from damaged wires,safety_hazard,high
+Gas leak reported in building,safety_hazard,high
+Carbon monoxide detector activation,safety_hazard,high
+Explosive risk from damaged equipment,safety_hazard,high
+Chemical spill emergency,safety_hazard,high
+Biohazard waste disposal issue,sanitation,high
+Sewage treatment plant odor,sanitation,medium
+Landfill overflow problem,sanitation,high
+Medical sharps in public area,sanitation,high
+Hazardous waste dumping,sanitation,high
+Multiple trees down after hurricane,obstruction,high
+Landslide blocking mountain road,obstruction,high
+Mudslide covering highway,obstruction,high
+Rock fall on scenic route,obstruction,high
+Snow avalanche blocking pass,obstruction,high
+Protest blocking city streets,traffic_issue,high
+Parade route traffic disruption,traffic_issue,medium
+Marathon road closures,traffic_issue,medium
+Political rally street closure,traffic_issue,medium
+Film production blocking access,traffic_issue,low
+Historical building vandalism,public_property,high
+Museum property damage,public_property,high
+Public statue defacement,public_property,high
+Library book destruction,public_property,medium
+Community garden vandalism,public_property,medium
+Disease outbreak in community,public_health,high
+Food poisoning incident,public_health,high
+Air quality health advisory,public_health,high
+Lead contamination in water,public_health,high
+Asbestos exposure risk,public_health,high
+Bridge collapse emergency,traffic_safety,high
+Tunnel closure for repairs,traffic_safety,high
+Railroad crossing malfunction,traffic_safety,high
+Airport runway issue,traffic_safety,high
+Seaport security breach,traffic_safety,high
+Dam failure risk,water_issue,high
+Flooding emergency evacuation,water_issue,high
+Tsunami warning system failure,water_issue,high
+Hurricane storm surge risk,water_issue,high
+Tornado water system damage,water_issue,high
+Minor road surface wear,road_damage,low
+Small pavement crack,road_damage,low
+Faded road markings,road_damage,low
+Minor sidewalk unevenness,road_damage,low
+Small pothole in alley,road_damage,low
+Burnt out light bulb,safety_hazard,low
+Minor electrical outlet issue,safety_hazard,low
+Small battery disposal,safety_hazard,low
+Minor appliance repair,safety_hazard,low
+Small electronic waste,safety_hazard,low
+Litter in park,sanitation,low
+Minor trash overflow,sanitation,low
+Small recycling issue,sanitation,low
+Minor cleaning needed,sanitation,low
+Small waste problem,sanitation,low
+Twig on sidewalk,obstruction,low
+Small branch down,obstruction,low
+Minor vegetation trim,obstruction,low
+Small plant overgrowth,obstruction,low
+Minor landscape issue,obstruction,low
+Parking meter expired,traffic_issue,low
+Minor parking violation,traffic_issue,low
+Small traffic delay,traffic_issue,low
+Minor congestion issue,traffic_issue,low
+Small parking problem,traffic_issue,low
+Minor scratch on surface,public_property,low
+Small cosmetic damage,public_property,low
+Minor wear and tear,public_property,low
+Small maintenance issue,public_property,low
+Minor repair needed,public_property,low
+Small cleanliness issue,public_health,low
+Minor odor concern,public_health,low
+Small pest sighting,public_health,low
+Minor hygiene issue,public_health,low
+Small health concern,public_health,low
+Minor sign fading,traffic_safety,low
+Small signal timing issue,traffic_safety,low
+Minor crosswalk wear,traffic_safety,low
+Small safety concern,traffic_safety,low
+Minor traffic issue,traffic_safety,low
+Small water drip,water_issue,low
+Minor leak concern,water_issue,low
+Small pressure fluctuation,water_issue,low
+Minor water quality,water_issue,low
+Small system issue,water_issue,low
+Cat stuck in tree,animal_issue,low
+Lost dog in neighborhood,animal_issue,low
+Bird nest in vent,animal_issue,low
+Squirrel in attic,animal_issue,low
+Rabbit in garden,animal_issue,low
+Stray cats causing noise,animal_issue,medium
+Dog barking constantly,animal_issue,medium
+Raccoons getting into trash,animal_issue,medium
+Bees nesting near entrance,animal_issue,medium
+Snake in backyard,animal_issue,medium
+Aggressive dog roaming,animal_issue,high
+Animal attack incident,animal_issue,high
+Rabid animal reported,animal_issue,high
+Wildlife in school area,animal_issue,high
+Dangerous animal sighting,animal_issue,high
+Broken street light bulb,public_lighting,low
+Flickering porch light,public_lighting,low
+Dim street lighting,public_lighting,low
+Minor lighting issue,public_lighting,low
+Small light repair,public_lighting,low
+Multiple street lights out,public_lighting,medium
+Park lighting malfunction,public_lighting,medium
+Area lighting failure,public_lighting,medium
+Security light issue,public_lighting,medium
+Pathway lighting problem,public_lighting,medium
+Complete blackout in district,public_lighting,high
+Sports field lighting failure,public_lighting,high
+Highway lighting system down,public_lighting,high
+Bridge lighting emergency,public_lighting,high
+Tunnel lighting failure,public_lighting,high
+Minor noise complaint,noise_issue,low
+Quiet hours disturbance,noise_issue,low
+Small sound issue,noise_issue,low
+Minor music complaint,noise_issue,low
+Small noise problem,noise_issue,low
+Construction noise early,noise_issue,medium
+Loud party late night,noise_issue,medium
+Business noise complaint,noise_issue,medium
+Vehicle noise issue,noise_issue,medium
+Equipment noise problem,noise_issue,medium
+Industrial noise pollution,noise_issue,high
+Airport noise violation,noise_issue,high
+Factory noise emergency,noise_issue,high
+Concert noise disturbance,noise_issue,high
+Emergency siren malfunction,noise_issue,high
+Small park maintenance,park_maintenance,low
+Minor garden care,park_maintenance,low
+Playground inspection needed,park_maintenance,low
+Bench cleaning required,park_maintenance,low
+Path weeding needed,park_maintenance,low
+Sports field maintenance,park_maintenance,medium
+Pool cleaning required,park_maintenance,medium
+Fountain repair needed,park_maintenance,medium
+Gazebo maintenance,park_maintenance,medium
+Trail repair required,park_maintenance,medium
+Major park renovation,park_maintenance,high
+Pool closure emergency,park_maintenance,high
+Playground safety hazard,park_maintenance,high
+Amphitheater structural issue,park_maintenance,high
+Botanical garden damage,park_maintenance,high
+Minor heating issue,public_utility,low
+Small cooling problem,public_utility,low
+Basic utility service,public_utility,low
+Minor service interruption,public_utility,low
+Small utility concern,public_utility,low
+Heating system failure,public_utility,medium
+Cooling system malfunction,public_utility,medium
+Partial power outage,public_utility,medium
+Water service disruption,public_utility,medium
+Gas service issue,public_utility,medium
+Complete power grid failure,public_utility,high
+Natural gas emergency,public_utility,high
+Water system contamination,public_utility,high
+Electrical grid collapse,public_utility,high
+Utility crisis situation,public_utility,high
