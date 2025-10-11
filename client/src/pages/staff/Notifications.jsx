@@ -15,7 +15,7 @@ const Notifications = () => {
   const fetchAnnouncements = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8000/api/announcements?audience=Staff', {
+      const response = await axios.get(`${BASE_URL}/api/announcements?audience=Staff`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnnouncements(response.data.data || response.data);

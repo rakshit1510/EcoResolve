@@ -58,6 +58,7 @@ const HeatMap = () => {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [mapZoom, setMapZoom] = useState(12);
   const mapRef = useRef();
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchComplaints();
@@ -67,7 +68,7 @@ const HeatMap = () => {
     try {
       const token = localStorage.getItem('accessToken');
       const axios = (await import('axios')).default;
-      const response = await axios.get('http://localhost:8000/api/complaints/getAllComplaints', {
+      const response = await axios.get(`${BASE_URL}/api/complaints/getAllComplaints`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -14,6 +14,8 @@ const ReportGeneration = () => {
     year: new Date().getFullYear()
   });
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -25,10 +27,10 @@ const ReportGeneration = () => {
     setLoading(true);
     setError('');
     setDownloadMessage('');
-    
+
     try {
       const token = localStorage.getItem('accessToken');
-      
+
       // For yearly report, omit month to get full year data
       let params;
       if (formData.type === 'yearly') {
@@ -39,10 +41,10 @@ const ReportGeneration = () => {
       } else {
         params = new URLSearchParams(formData);
       }
-      
+
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const response = await axios.get(`http://localhost:8000/api/reports/admin?${params}`, {
+
+      const response = await axios.get(`${BASE_URL}/api/reports/admin?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setReportData(response.data.data);
@@ -82,8 +84,6 @@ const ReportGeneration = () => {
               <option value="yearly">Yearly Report</option>
             </select>
           </div>
-
-
 
           {formData.type === 'monthly' && (
             <div>
@@ -145,7 +145,7 @@ const ReportGeneration = () => {
         {reportData && (
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Report Results</h2>
-            
+
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-blue-50 p-4 rounded-lg">

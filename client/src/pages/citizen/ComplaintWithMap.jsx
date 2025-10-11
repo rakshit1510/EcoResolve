@@ -13,6 +13,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Component to handle map click events
 const LocationPicker = ({ onLocationSelect }) => {
   useMapEvents({
@@ -104,7 +105,7 @@ export default function ComplaintWithMap() {
                 return;
             }
             
-            const res = await axios.post("http://localhost:8000/api/complaints/createComplaint", formDataToSend, {
+            const res = await axios.post(`${VITE_API_BASE_URL}/api/complaints/createComplaint`, formDataToSend, {
                 headers: { 
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${token}`

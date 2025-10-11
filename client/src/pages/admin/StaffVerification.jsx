@@ -8,6 +8,8 @@ export default function StaffVerification() {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
 
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     useEffect(() => {
         fetchPendingStaff();
     }, []);
@@ -15,7 +17,7 @@ export default function StaffVerification() {
     const fetchPendingStaff = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await axios.get("http://localhost:8000/api/auth/unapproved-staff", {
+            const res = await axios.get(`${BASE_URL}/api/auth/unapproved-staff`, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -30,24 +32,26 @@ export default function StaffVerification() {
     const handleApproval = async (staffId, action) => {
         try {
             const token = localStorage.getItem('accessToken');
+            const email = pendingStaff.find(staff => staff._id === staffId)?.email;
+
             if (action === 'approve') {
-                await axios.post("http://localhost:8000/api/auth/approve-account", 
-                    { email: pendingStaff.find(staff => staff._id === staffId)?.email },
+                await axios.post(`${BASE_URL}/api/auth/approve-account`,
+                    { email },
                     {
                         headers: { "Authorization": `Bearer ${token}` },
                         withCredentials: true
                     }
                 );
             } else {
-                await axios.post("http://localhost:8000/api/auth/reject-staff", 
-                    { email: pendingStaff.find(staff => staff._id === staffId)?.email },
+                await axios.post(`${BASE_URL}/api/auth/reject-staff`,
+                    { email },
                     {
                         headers: { "Authorization": `Bearer ${token}` },
                         withCredentials: true
                     }
                 );
             }
-            
+
             setMessage(`Staff ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
             fetchPendingStaff(); // Refresh the list
         } catch (error) {
@@ -78,9 +82,8 @@ export default function StaffVerification() {
                     </div>
 
                     {message && (
-                        <div className={`mb-4 p-4 rounded-lg text-center ${
-                            message.includes("successfully") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                        }`}>
+                        <div className={`mb-4 p-4 rounded-lg text-center ${message.includes("successfully") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                            }`}>
                             {message}
                         </div>
                     )}

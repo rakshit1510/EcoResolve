@@ -15,9 +15,11 @@ export default function Complaints() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
 
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const departments = [
         "Public Works Department (PWD)",
-        "Sanitation Department", 
+        "Sanitation Department",
         "Water Supply Department",
         "Electricity Department",
         "Parks & Environment Department"
@@ -44,16 +46,15 @@ export default function Complaints() {
             formDataToSend.append("image", formData.image);
 
             const token = localStorage.getItem('accessToken');
-            // console.log('Token from localStorage:', token);
-            
+
             if (!token) {
                 setMessage('Please login first');
                 setLoading(false);
                 return;
             }
-            
-            const res = await axios.post("http://localhost:8000/api/complaints/createComplaint", formDataToSend, {
-                headers: { 
+
+            const res = await axios.post(`${BASE_URL}/api/complaints/createComplaint`, formDataToSend, {
+                headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${token}`
                 },
@@ -63,7 +64,6 @@ export default function Complaints() {
             setMessage("Complaint submitted successfully!");
             setFormData({ department: "", location: "", description: "", image: null });
         } catch (error) {
-            // console.log('Error response:', error.response);
             const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || "Failed to submit complaint";
             setMessage(errorMessage);
         } finally {
@@ -183,9 +183,8 @@ export default function Complaints() {
                     </form>
 
                     {message && (
-                        <div className={`mt-4 p-4 rounded-lg text-center ${
-                            message.includes("successfully") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                        }`}>
+                        <div className={`mt-4 p-4 rounded-lg text-center ${message.includes("successfully") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                            }`}>
                             {message}
                         </div>
                     )}

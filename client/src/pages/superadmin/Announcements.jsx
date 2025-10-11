@@ -9,6 +9,8 @@ const Announcements = () => {
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   
   const [formData, setFormData] = useState({
     title: '',
@@ -25,7 +27,7 @@ const Announcements = () => {
   const fetchAnnouncements = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8000/api/announcements/', {
+      const response = await axios.get(`${BASE_URL}/api/announcements/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnnouncements(response.data.data || response.data);
@@ -59,14 +61,14 @@ const Announcements = () => {
       }
 
       if (editingAnnouncement) {
-        await axios.put(`http://localhost:8000/api/announcements/${editingAnnouncement._id}`, formDataToSend, {
+        await axios.put(`${BASE_URL}/api/announcements/${editingAnnouncement._id}`, formDataToSend, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
           }
         });
       } else {
-        await axios.post('http://localhost:8000/api/announcements', formDataToSend, {
+        await axios.post(`${BASE_URL}/api/announcements`, formDataToSend, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
@@ -88,7 +90,7 @@ const Announcements = () => {
     
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.delete(`http://localhost:8000/api/announcements/${id}`, {
+      await axios.delete(`${BASE_URL}/api/announcements/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchAnnouncements();

@@ -22,6 +22,8 @@ export default function StaffSignup() {
         "Electricity Department",
         "Parks & Environment Department"
     ];
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -44,7 +46,7 @@ export default function StaffSignup() {
         setMessage("");
         
         try {
-            await axios.post("http://localhost:8000/api/auth/sendotp", {
+            await axios.post(`${BASE_URL}/api/auth/sendotp`, {
                 email: formData.email
             });
             setOtpSent(true);
@@ -68,7 +70,7 @@ export default function StaffSignup() {
         }
 
         try {
-            const res = await axios.post("http://localhost:8000/api/auth/signup", {
+            const res = await axios.post(`${BASE_URL}/api/auth/signup`, {
                 ...formData,
                 accountType: "Staff",
             });

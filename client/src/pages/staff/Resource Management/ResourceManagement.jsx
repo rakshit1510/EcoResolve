@@ -20,7 +20,8 @@ export default function ResourceManagement() {
         nextAvailable: "",
         description: ""
     });
-    
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const [userDepartment, setUserDepartment] = useState("");
 
     const statusOptions = ["Available", "In Use", "Under Maintenance", "Unavailable"];
@@ -40,7 +41,7 @@ export default function ResourceManagement() {
     const fetchUserProfile = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await axios.get("http://localhost:8000/api/profile/getProfile", {
+            const res = await axios.get(`${BASE_URL}/api/profile/getProfile`, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -60,7 +61,7 @@ export default function ResourceManagement() {
             if (filters.status) params.append('status', filters.status);
 
             
-            const res = await axios.get(`http://localhost:8000/api/resources?${params}`, {
+            const res = await axios.get(`${BASE_URL}/api/resources?${params}`, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -80,13 +81,13 @@ export default function ResourceManagement() {
         try {
             const token = localStorage.getItem('accessToken');
             if (editingResource) {
-                await axios.put(`http://localhost:8000/api/resources/${editingResource._id}`, formData, {
+                await axios.put(`${BASE_URL}/api/resources/${editingResource._id}`, formData, {
                     headers: { "Authorization": `Bearer ${token}` },
                     withCredentials: true
                 });
                 setMessage("Resource updated successfully!");
             } else {
-                await axios.post("http://localhost:8000/api/resources", formData, {
+                await axios.post(`${BASE_URL}/api/resources`, formData, {
                     headers: { "Authorization": `Bearer ${token}` },
                     withCredentials: true
                 });
@@ -107,7 +108,7 @@ export default function ResourceManagement() {
         
         try {
             const token = localStorage.getItem('accessToken');
-            await axios.patch(`http://localhost:8000/api/resources/${resourceId}/retire`, {}, {
+            await axios.patch(`${BASE_URL}/api/resources/${resourceId}/retire`, {}, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });

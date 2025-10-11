@@ -13,6 +13,7 @@ const SuperAdminReportGeneration = () => {
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear()
   });
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleInputChange = (e) => {
     setFormData({
@@ -42,7 +43,7 @@ const SuperAdminReportGeneration = () => {
       
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const response = await axios.get(`http://localhost:8000/api/reports/generate?${params}`, {
+      const response = await axios.get(`${BASE_URL}/api/reports/generate?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setReportData(response.data.data);

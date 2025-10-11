@@ -8,6 +8,8 @@ const ComplaintStatus = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
@@ -27,7 +29,7 @@ const ComplaintStatus = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:8000/api/complaints/my-complaints", {
+      const response = await axios.get(`${BASE_URL}/api/complaints/my-complaints`, {
         headers: {
           "Authorization": `Bearer ${token}`
         },
@@ -109,19 +111,19 @@ const ComplaintStatus = () => {
                       {complaint.status.charAt(0).toUpperCase() + complaint.status.slice(1)}
                     </span>
                   </div>
-                  
+
                   <p className="text-gray-700 mb-4">{complaint.description}</p>
-                  
+
                   {complaint.imageUrl && (
                     <div className="mb-4">
-                      <img 
-                        src={complaint.imageUrl} 
-                        alt="Complaint" 
+                      <img
+                        src={complaint.imageUrl}
+                        alt="Complaint"
                         className="w-32 h-32 object-cover rounded-lg border"
                       />
                     </div>
                   )}
-                  
+
                   <div className="flex justify-between items-center text-sm text-gray-500">
                     <span>Submitted: {new Date(complaint.createdAt).toLocaleDateString()}</span>
                     <span>ID: {complaint._id.slice(-8)}</span>

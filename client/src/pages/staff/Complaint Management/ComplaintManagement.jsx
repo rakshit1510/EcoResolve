@@ -19,6 +19,8 @@ const ComplaintManagement = () => {
     'Electricity Department',
     'Parks & Environment Department'
   ];
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
   useEffect(() => {
     fetchComplaints();
@@ -27,7 +29,7 @@ const ComplaintManagement = () => {
   const fetchComplaints = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8000/api/complaints/getAllComplaints', {
+      const response = await axios.get(`${BASE_URL}/api/complaints/getAllComplaints`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setComplaints(response.data.data || response.data);
@@ -41,7 +43,7 @@ const ComplaintManagement = () => {
   const updateComplaintStatus = async (complaintId, newStatus) => {
     try {
       const token = localStorage.getItem('accessToken');
-      await axios.patch(`http://localhost:8000/api/complaints/changeProgressStatus/${complaintId}/status`, 
+      await axios.patch(`${BASE_URL}/api/complaints/changeProgressStatus/${complaintId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -21,6 +21,8 @@ export default function Signup() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -30,14 +32,12 @@ export default function Signup() {
             setMessage("Please enter email first");
             return;
         }
-        
+
         setOtpLoading(true);
         setMessage("");
-        
+
         try {
-            await axios.post("http://localhost:8000/api/auth/sendotp", {
-                email: formData.email
-            });
+            await axios.post(`${BASE_URL}/api/auth/sendotp`, { email: formData.email });
             setOtpSent(true);
             setMessage(`OTP sent to ${formData.email}`);
         } catch (error) {
@@ -59,12 +59,12 @@ export default function Signup() {
         }
 
         try {
-            const res = await axios.post("http://localhost:8000/api/auth/signup", {
+            await axios.post(`${BASE_URL}/api/auth/signup`, {
                 ...formData,
                 accountType: "Citizen",
             });
 
-            setMessage("Signup successful! Navigating to Login Page");
+            setMessage("Signup successful! Navigating to Login Page...");
             setTimeout(() => {
                 navigate("/login");
             }, 2000);
@@ -185,9 +185,8 @@ export default function Signup() {
                 </form>
 
                 {message && (
-                    <p className={`mt-4 text-center text-sm ${
-                        message.includes("successful") || message.includes("sent") ? "text-green-600" : "text-red-600"
-                    }`}>
+                    <p className={`mt-4 text-center text-sm ${message.includes("successful") || message.includes("sent") ? "text-green-600" : "text-red-600"
+                        }`}>
                         {message}
                     </p>
                 )}

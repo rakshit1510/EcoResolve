@@ -13,11 +13,12 @@ const ComplaintReview = () => {
   useEffect(() => {
     fetchAllReviews();
   }, []);
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchAllReviews = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8000/api/reviews/getAllReviews', {
+      const response = await axios.get(`${BASE_URL}/api/reviews/getAllReviews`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setReviews(response.data.data || response.data);

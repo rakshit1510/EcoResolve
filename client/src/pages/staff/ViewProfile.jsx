@@ -7,6 +7,8 @@ const ViewProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
   useEffect(() => {
     fetchProfile();
@@ -15,7 +17,7 @@ const ViewProfile = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8000/api/profile/me', {
+      const response = await axios.get(`${BASE_URL}/api/profile/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProfile(response.data.data);

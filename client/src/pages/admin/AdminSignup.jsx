@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const AdminSignup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -23,7 +25,7 @@ const AdminSignup = () => {
   const departments = [
     "Public Works Department (PWD)",
     "Sanitation Department",
-    "Water Supply Department", 
+    "Water Supply Department",
     "Electricity Department",
     "Parks & Environment Department"
   ];
@@ -37,17 +39,17 @@ const AdminSignup = () => {
       setMessage("Please enter email first");
       return;
     }
-    
+
     setOtpLoading(true);
     setMessage("");
-    
+
     try {
-      const response = await fetch("http://localhost:8000/api/auth/sendotp", {
+      const response = await fetch(`${BASE_URL}/api/auth/sendotp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email })
       });
-      
+
       const data = await response.json();
       if (response.ok) {
         setOtpSent(true);
@@ -71,9 +73,9 @@ const AdminSignup = () => {
 
     setLoading(true);
     setMessage("");
-    
+
     try {
-      const response = await fetch("http://localhost:8000/api/auth/signup", {
+      const response = await fetch(`${BASE_URL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -218,9 +220,8 @@ const AdminSignup = () => {
         </form>
 
         {message && (
-          <p className={`mt-4 text-center text-sm ${
-            message.includes("created") || message.includes("sent") ? "text-green-600" : "text-red-600"
-          }`}>
+          <p className={`mt-4 text-center text-sm ${message.includes("created") || message.includes("sent") ? "text-green-600" : "text-red-600"
+            }`}>
             {message}
           </p>
         )}

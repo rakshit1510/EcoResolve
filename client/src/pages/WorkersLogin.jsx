@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const WorkersLogin = () => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     loginId: '',
@@ -36,7 +38,7 @@ const WorkersLogin = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8000/api/assignments/assignment-login', formData);
+      const response = await axios.post(`${BASE_URL}/api/assignments/assignment-login`, formData);
       setAssignmentData(response.data.data);
       setShowOtpForm(true);
     } catch (err) {
@@ -52,7 +54,7 @@ const WorkersLogin = () => {
     setError('');
 
     try {
-      await axios.post('http://localhost:8000/api/assignments/resolve-assignment', {
+      await axios.post(`${BASE_URL}/api/assignments/resolve-assignment`, {
         assignmentId: assignmentData.id,
         otp: otpForm.otp
       });
@@ -73,7 +75,7 @@ const WorkersLogin = () => {
     if (!confirm('Are you sure you want to reject this complaint as false?')) return;
     
     try {
-      await axios.patch(`http://localhost:8000/api/assignments/reject/${assignmentData.compliantId._id}`);
+      await axios.patch(`${BASE_URL}/api/assignments/reject/${assignmentData.compliantId._id}`);
       alert('Complaint rejected successfully. Citizen has been warned.');
       setAssignmentData(null);
       setShowOtpForm(false);

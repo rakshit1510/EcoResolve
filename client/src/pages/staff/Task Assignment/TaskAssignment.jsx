@@ -12,7 +12,8 @@ const TaskAssignment = () => {
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-  
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [formData, setFormData] = useState({
     compliantId: '',
     workers: '',

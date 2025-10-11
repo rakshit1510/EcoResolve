@@ -8,6 +8,8 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     fetchAnnouncements();
   }, []);
@@ -15,9 +17,17 @@ const Notifications = () => {
   const fetchAnnouncements = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8000/api/announcements?audience=Citizen', {
-        headers: { Authorization: `Bearer ${token}` }
+      if (!token) {
+        setError('Please login first');
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get(`${BASE_URL}/api/announcements?audience=Citizen`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true
       });
+
       setAnnouncements(response.data.data || response.data);
     } catch (err) {
       setError('Failed to fetch notifications');
@@ -70,9 +80,9 @@ const Notifications = () => {
                       {announcement.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  
+
                   <p className="text-gray-700 mb-4">{announcement.message}</p>
-                  
+
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                     <span>Published: <span className="font-medium">{new Date(announcement.createdAt).toLocaleDateString()}</span></span>
                     {announcement.expiresAt && (

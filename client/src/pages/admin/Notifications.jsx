@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Notifications = () => {
   const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState([]);
@@ -15,7 +17,7 @@ const Notifications = () => {
   const fetchAnnouncements = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get('http://localhost:8000/api/announcements?audience=Admin', {
+      const response = await axios.get(`${BASE_URL}/api/announcements?audience=Admin`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnnouncements(response.data.data || response.data);
@@ -70,9 +72,9 @@ const Notifications = () => {
                       {announcement.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  
+
                   <p className="text-gray-700 mb-4">{announcement.message}</p>
-                  
+
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                     <span>Published: <span className="font-medium">{new Date(announcement.createdAt).toLocaleDateString()}</span></span>
                     {announcement.expiresAt && (

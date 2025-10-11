@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
 export default function Feedback() {
+
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("create");
     const [myReviews, setMyReviews] = useState([]);
@@ -29,7 +32,7 @@ export default function Feedback() {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await axios.get("http://localhost:8000/api/reviews/my-reviews", {
+            const res = await axios.get(`${BASE_URL}/api/reviews/my-reviews`, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -48,7 +51,7 @@ export default function Feedback() {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await axios.get("http://localhost:8000/api/complaints/my-complaints", {
+            const res = await axios.get(`${BASE_URL}/api/complaints/my-complaints`, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
@@ -71,7 +74,7 @@ export default function Feedback() {
 
         try {
             const token = localStorage.getItem('accessToken');
-            await axios.post("http://localhost:8000/api/reviews/createReview", reviewForm, {
+            await axios.post(`${BASE_URL}/api/reviews/createReview`, reviewForm, {
                 headers: { "Authorization": `Bearer ${token}` },
                 withCredentials: true
             });
