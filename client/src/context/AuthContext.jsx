@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { API_ENDPOINTS } from '../config/api.js';
 
 const AuthContext = createContext();
 
@@ -10,10 +11,10 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password, accountType = "Citizen") => {
         try {
             let endpoint;
-            if (accountType === "Citizen") endpoint = "http://localhost:8000/api/auth/login/citizen";
-            else if (accountType === "Admin") endpoint = "http://localhost:8000/api/auth/login/admin";
-            else if (accountType === "Staff") endpoint = "http://localhost:8000/api/auth/login/staff";
-            else if (accountType === "SuperAdmin") endpoint = "http://localhost:8000/api/auth/login/superadmin";
+            if (accountType === "Citizen") endpoint = API_ENDPOINTS.AUTH.LOGIN_CITIZEN;
+            else if (accountType === "Admin") endpoint = API_ENDPOINTS.AUTH.LOGIN_ADMIN;
+            else if (accountType === "Staff") endpoint = API_ENDPOINTS.AUTH.LOGIN_STAFF;
+            else if (accountType === "SuperAdmin") endpoint = API_ENDPOINTS.AUTH.LOGIN_SUPERADMIN;
             
             const res = await axios.post(endpoint, { email, password });
             const { accessToken } = res.data.data;

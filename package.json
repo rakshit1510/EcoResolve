@@ -1,7 +1,23 @@
 {
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "socket.io": "^4.8.1"
+  "name": "ecoresolve",
+  "version": "1.0.0",
+  "description": "EcoResolve - Civic Issue Management System",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm run dev",
+    "server:start": "cd server && npm start",
+    "client:build": "cd client && npm run build",
+    "client:serve": "cd client && npm run serve",
+    "build": "npm run client:build",
+    "start": "npm run server:start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "keywords": ["civic", "complaints", "management", "react", "nodejs"],
+  "author": "EcoResolve Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

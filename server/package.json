@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "start:prod": "NODE_ENV=production node src/index.js",
+    "build": "echo \"No build step required for Node.js\""
   },
   "type": "module",
   "keywords": [],
