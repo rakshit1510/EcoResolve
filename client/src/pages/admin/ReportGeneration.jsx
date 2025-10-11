@@ -10,7 +10,6 @@ const ReportGeneration = () => {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     type: 'monthly',
-    format: 'json',
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear()
   });
@@ -35,7 +34,6 @@ const ReportGeneration = () => {
       if (formData.type === 'yearly') {
         params = new URLSearchParams({
           type: 'monthly',
-          format: formData.format,
           year: formData.year
         });
       } else {
@@ -44,32 +42,12 @@ const ReportGeneration = () => {
       
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      if (formData.format === 'json') {
-        const response = await axios.get(`http://localhost:8000/api/reports/generate?${params}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setReportData(response.data.data);
-      } else {
-        setDownloadMessage('Your report is being downloaded...');
-        
-        const response = await axios.get(`http://localhost:8000/api/reports/generate?${params}`, {
-          headers: { Authorization: `Bearer ${token}` },
-          responseType: 'blob'
-        });
-        
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `complaint_report_${formData.type}.${formData.format}`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        
-        setTimeout(() => setDownloadMessage(''), 3000);
-      }
+      const response = await axios.get(`http://localhost:8000/api/reports/admin?${params}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setReportData(response.data.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to generate report');
+      setError(err.response?.data?.message || err.message || 'Failed to generate report');
     } finally {
       setLoading(false);
     }
@@ -89,7 +67,7 @@ const ReportGeneration = () => {
 
       <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
         {/* Report Configuration */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Report Type
@@ -105,21 +83,7 @@ const ReportGeneration = () => {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Format
-            </label>
-            <select
-              name="format"
-              value={formData.format}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="json">View Report</option>
-              <option value="csv">Download CSV</option>
-              <option value="pdf">Download PDF</option>
-            </select>
-          </div>
+
 
           {formData.type === 'monthly' && (
             <div>
@@ -186,30 +150,36 @@ const ReportGeneration = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <h3 className="text-sm font-medium text-blue-600">Total Complaints</h3>
-                <p className="text-2xl font-bold text-blue-900">{reportData.totalComplaints}</p>
+                <p className="text-2xl font-bold text-blue-900">{reportData.summary?.totalComplaints}</p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <h3 className="text-sm font-medium text-green-600">Resolved</h3>
-                <p className="text-2xl font-bold text-green-900">{reportData.resolvedComplaints}</p>
+                <p className="text-2xl font-bold text-green-900">{reportData.summary?.resolvedComplaints}</p>
               </div>
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <h3 className="text-sm font-medium text-yellow-600">Pending</h3>
-                <p className="text-2xl font-bold text-yellow-900">{reportData.pendingComplaints}</p>
+                <p className="text-2xl font-bold text-yellow-900">{reportData.summary?.pendingComplaints}</p>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg">
                 <h3 className="text-sm font-medium text-purple-600">Avg Resolution Time</h3>
-                <p className="text-2xl font-bold text-purple-900">{reportData.averageResolutionTimeHours}h</p>
+                <p className="text-2xl font-bold text-purple-900">{reportData.summary?.averageResolutionTimeHours}h</p>
               </div>
             </div>
 
             {/* Department Breakdown */}
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold mb-3">Department Breakdown</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {Object.entries(reportData.departmentBreakdown).map(([dept, count]) => (
-                  <div key={dept} className="bg-white p-3 rounded border">
-                    <span className="font-medium">{dept}:</span>
-                    <span className="ml-2 text-blue-600 font-semibold">{count}</span>
+              <div className="grid grid-cols-1 gap-3">
+                {Object.entries(reportData.departmentBreakdown || {}).map(([dept, data]) => (
+                  <div key={dept} className="bg-white p-4 rounded border">
+                    <h4 className="font-medium text-gray-900 mb-2">{dept}</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                      <span>Total: <span className="font-semibold text-blue-600">{data.totalComplaints}</span></span>
+                      <span>Resolved: <span className="font-semibold text-green-600">{data.resolvedComplaints}</span></span>
+                      <span>Pending: <span className="font-semibold text-yellow-600">{data.pendingComplaints}</span></span>
+                      <span>Overdue: <span className="font-semibold text-red-600">{data.overdueComplaints}</span></span>
+                      <span>Escalated: <span className="font-semibold text-purple-600">{data.escalatedComplaints}</span></span>
+                    </div>
                   </div>
                 ))}
               </div>

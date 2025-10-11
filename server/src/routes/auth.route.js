@@ -16,7 +16,11 @@ import {
     approveAdminAccount,
     fetchUnapprovedAdmin,
     fetchUnapprovedStaff,
-    getAccountByQuery
+    getAccountByQuery,
+    rejectStaffApproval,
+    rejectAdminApproval,
+    unapproveStaffAccount,
+    unapproveAdminAccount
 } from "../controllers/auth.controller.js";
 
 const router = express.Router();
@@ -35,4 +39,8 @@ router.get("/unapproved-admins", verifyJWT, fetchUnapprovedAdmin);
 router.get("/unapproved-staff", verifyJWT, fetchUnapprovedStaff);
 router.post("/approve-admin-account", verifyJWT, approveAdminAccount);
 router.post("/getAccountByQuery", verifyJWT, getAccountByQuery);
+router.post("/reject-staff", verifyJWT, rejectStaffApproval);
+router.post("/reject-admin", verifyJWT, rejectAdminApproval);
+router.post("/unapprove-staff", verifyJWT, unapproveStaffAccount);
+router.post("/unapprove-admin", verifyJWT, unapproveAdminAccount);
 export default router;

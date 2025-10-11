@@ -160,7 +160,10 @@ export const getAnnouncementsByFilters = asyncHandler(async (req, res) => {
     const { audience, isActive } = req.query;
     const filter = {};
 
-    if (audience && audience !== "All") filter.audience = audience;
+    // Only show announcements for specific audience (no 'All' announcements)
+    if (audience) {
+      filter.audience = audience;
+    }
     if (typeof isActive !== "undefined") filter.isActive = isActive === "true";
 
     // For SuperAdmin management, show all announcements (including expired)

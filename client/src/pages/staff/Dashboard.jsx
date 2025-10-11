@@ -30,12 +30,6 @@ export default function StaffDashboard() {
             path: "/staff/assignments"
         },
         {
-            title: "City Complaint Map",
-            description: "View geographical distribution of complaints in the city",
-            icon: "🗺️",
-            path: "/staff/city-map"
-        },
-        {
             title: "Complaint Reviews",
             description: "View all reviews and feedback from citizens",
             icon: "⭐",
@@ -52,6 +46,12 @@ export default function StaffDashboard() {
             description: "View your personal information and account details",
             icon: "👤",
             path: "/staff/profile"
+        },
+        {
+            title: "View Notifications",
+            description: "Check announcements and updates from administration",
+            icon: "🔔",
+            path: "/staff/notifications"
         }
     ];
 

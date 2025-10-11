@@ -629,7 +629,12 @@ try {
     if(!admin || admin.accountType !== "Admin" || !admin.approved){
         throw new ApiError(403,"You are not authorized to view unapproved staff accounts");
     }
-    const unapprovedStaff = await User.find({ accountType: "Staff", approved: false });
+    // Filter by admin's department and populate contact details
+    const unapprovedStaff = await User.find({ 
+        accountType: "Staff", 
+        approved: false, 
+        department: admin.department 
+    }).populate('additionalDetails');
     if(!unapprovedStaff){
         throw new ApiError(404,"No unapproved staff accounts found");
     }

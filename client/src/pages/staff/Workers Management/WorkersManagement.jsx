@@ -264,6 +264,7 @@ const WorkersManagement = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Skills</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assignments</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -276,6 +277,19 @@ const WorkersManagement = () => {
                   <td className="px-6 py-4 whitespace-nowrap">{worker.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{worker.department}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{worker.role}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1">
+                      {worker.skills && worker.skills.length > 0 ? (
+                        worker.skills.map((skill, index) => (
+                          <span key={index} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-xs">No skills listed</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       worker.status === 'Available' ? 'bg-green-100 text-green-800' :

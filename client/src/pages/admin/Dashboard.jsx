@@ -28,6 +28,12 @@ export default function AdminDashboard() {
             description: "Handle complaints escalated by citizens or system",
             icon: "🚨",
             path: "/admin/escalated-complaints"
+        },
+        {
+            title: "View Notifications",
+            description: "Check announcements and updates from administration",
+            icon: "🔔",
+            path: "/admin/notifications"
         }
     ];
 

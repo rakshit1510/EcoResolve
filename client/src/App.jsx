@@ -11,6 +11,7 @@ import GISPopups from "./pages/GIS_Pages/data/GISPopups.jsx";
 import ComplaintStatus from "./pages/citizen/Complaints/ComplaintStatus.jsx";
 import ProfileOptions from "./pages/citizen/ProfileOptions.jsx";
 import Feedback from "./pages/citizen/Feedback.jsx";
+import Notifications from "./pages/citizen/Notifications.jsx";
 import StaffVerification from "./pages/admin/StaffVerification.jsx";
 import ResourceManagement from "./pages/staff/Resource Management/ResourceManagement.jsx";
 import WorkersManagement from "./pages/staff/Workers Management/WorkersManagement.jsx";
@@ -19,11 +20,13 @@ import ComplaintManagement from "./pages/staff/Complaint Management/ComplaintMan
 import ComplaintReview from "./pages/staff/Complaint Review/ComplaintReview.jsx";
 import ViewProfile from "./pages/staff/ViewProfile.jsx";
 import StaffDashboard from "./pages/staff/Dashboard.jsx";
+import StaffNotifications from "./pages/staff/Notifications.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
 import SuperAdminDashboard from "./pages/superadmin/Dashboard.jsx";
 import AdminApprovals from "./pages/superadmin/AdminApprovals.jsx";
 import EscalatedComplaints from "./pages/admin/EscalatedComplaints.jsx";
 import ReportGeneration from "./pages/admin/ReportGeneration.jsx";
+import AdminNotifications from "./pages/admin/Notifications.jsx";
 import SuperAdminEscalatedComplaints from "./pages/superadmin/EscalatedComplaints.jsx";
 import SuperAdminReportGeneration from "./pages/superadmin/ReportGeneration.jsx";
 import Announcements from "./pages/superadmin/Announcements.jsx";
@@ -50,6 +53,7 @@ function App() {
           <Route path="/citizen/complaint-status" element={<ComplaintStatus />} />
           <Route path="/citizen/profile" element={<ProfileOptions />} />
           <Route path="/citizen/feedback" element={<Feedback />} />
+          <Route path="/citizen/notifications" element={<Notifications />} />
         </Route>
 
         {/* Staff Routes */}
@@ -58,11 +62,10 @@ function App() {
           <Route path="/staff/resources" element={<ResourceManagement />} />
           <Route path="/staff/workers" element={<WorkersManagement />} />
           <Route path="/staff/assignments" element={<TaskAssignment />} />
-          <Route path="/staff/city-map" element={<GISPopups />} />
-          {/* <Route path="/staff/city-map" element={<div>City Complaint Map - Coming Soon</div>} /> */}
           <Route path="/staff/reviews" element={<ComplaintReview />} />
           <Route path="/staff/complaints" element={<ComplaintManagement />} />
           <Route path="/staff/profile" element={<ViewProfile />} />
+          <Route path="/staff/notifications" element={<StaffNotifications />} />
         </Route>
 
         {/* Admin Routes */}
@@ -72,6 +75,7 @@ function App() {
           <Route path="/admin/staff-verification" element={<StaffVerification />} />
           <Route path="/admin/unresolved-alerts" element={<div>Unresolved Alerts - Coming Soon</div>} />
           <Route path="/admin/escalated-complaints" element={<EscalatedComplaints />} />
+          <Route path="/admin/notifications" element={<AdminNotifications />} />
         </Route>
 
         {/* SuperAdmin Routes */}

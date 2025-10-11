@@ -39,10 +39,13 @@ export default function StaffVerification() {
                     }
                 );
             } else {
-                
-                setPendingStaff(prev => prev.filter(staff => staff._id !== staffId));
-                setMessage('Staff account rejected');
-                return;
+                await axios.post("http://localhost:8000/api/auth/reject-staff", 
+                    { email: pendingStaff.find(staff => staff._id === staffId)?.email },
+                    {
+                        headers: { "Authorization": `Bearer ${token}` },
+                        withCredentials: true
+                    }
+                );
             }
             
             setMessage(`Staff ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
@@ -102,7 +105,7 @@ export default function StaffVerification() {
                                                     <span className="font-medium">Email:</span> {staff.email}
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium">Contact:</span> {staff.contactNumber || 'Not provided'}
+                                                    <span className="font-medium">Contact:</span> {staff.additionalDetails?.contactNumber || 'Not provided'}
                                                 </div>
                                                 <div>
                                                     <span className="font-medium">Account Type:</span> {staff.accountType}

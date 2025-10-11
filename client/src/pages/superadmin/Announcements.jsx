@@ -13,7 +13,7 @@ const Announcements = () => {
   const [formData, setFormData] = useState({
     title: '',
     message: '',
-    audience: 'All',
+    audience: 'Citizen',
     expiresAt: '',
     attachments: null
   });
@@ -113,7 +113,7 @@ const Announcements = () => {
     setFormData({
       title: '',
       message: '',
-      audience: 'All',
+      audience: 'Citizen',
       expiresAt: '',
       attachments: null
     });
@@ -203,7 +203,6 @@ const Announcements = () => {
                   onChange={handleInputChange}
                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="All">All Users</option>
                   <option value="Citizen">Citizens</option>
                   <option value="Staff">Staff</option>
                   <option value="Admin">Admins</option>

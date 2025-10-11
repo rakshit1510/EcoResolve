@@ -46,6 +46,12 @@ export default function CitizenDashboard() {
             description: "Rate and review resolved complaints",
             icon: "⭐",
             path: "/citizen/feedback"
+        },
+        {
+            title: "View Notifications",
+            description: "Check announcements and updates from administration",
+            icon: "🔔",
+            path: "/citizen/notifications"
         }
     ];
 
